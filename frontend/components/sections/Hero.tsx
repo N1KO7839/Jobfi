@@ -2,7 +2,7 @@ import {subtitle, title} from "@/components/primitives";
 import {Button} from "@heroui/button";
 
 
-export default function HeroSection() {
+export default function Hero() {
   return (
     <section className="flex flex-col items-center justify-center gap-8 py-8 md:py-10">
       <div className="inline-block max-w-xl text-center justify-center">
