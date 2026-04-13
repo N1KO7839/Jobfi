@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional, Literal
 
+
 class JobOfferSchema(BaseModel):
     title: str
     company: str
