@@ -1,29 +1,41 @@
-import {subtitle, title} from "@/components/primitives";
-import {Button} from "@heroui/button";
+"use client";
+import { Button } from "@heroui/button";
+import { useRouter } from "next/navigation";
 
+import { subtitle, title } from "@/components/primitives";
 
 export default function Hero() {
+  const router = useRouter();
+
   return (
     <section className="flex flex-col items-center justify-center gap-8 py-8 md:py-10">
-      <div className="inline-block max-w-xl text-center justify-center">
-        <span className={title()}>Find your next job without &nbsp;</span>
-        <span className={title({ color: "violet" })}>spending hours&nbsp;</span> 
+      <div className="inline-block max-w-2xl text-center justify-center">
+        <span className={title()}>Discover your next job without &nbsp;</span>
+        <span className={title({ color: "violet" })}>spending hours&nbsp;</span>
         <span className={title()}>on</span>
         <br />
-        <span className={title()}>
-          searching.
-        </span>
-      <div className={subtitle({ class: "mt-4" })}>
-          Beautiful, fast and modern React UI library.
+        <span className={title()}>searching.</span>
+        <div className={subtitle({ class: "mt-4" })}>
+          Find opportunities that match your skills
         </div>
       </div>
       <div className="flex flex-row gap-5">
-          <Button size="lg" color="secondary" variant="shadow" >
-              Get started with Jobfi
-          </Button>
-          <Button size="lg" color="default" variant="bordered">
-              Learn more
-          </Button>
+        <Button
+          color="secondary"
+          size="lg"
+          variant="shadow"
+          onClick={() => router.push("/register")}
+        >
+          Get started with Jobfi
+        </Button>
+        <Button
+          color="default"
+          size="lg"
+          variant="bordered"
+          onClick={() => router.push("#")}
+        >
+          Learn more
+        </Button>
       </div>
     </section>
   );

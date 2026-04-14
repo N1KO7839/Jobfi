@@ -9,22 +9,20 @@ export const Logo: React.FC<IconSvgProps> = ({
   ...props
 }) => (
   <svg
-    version="1.0"
-    xmlns="http://www.w3.org/2000/svg"
-    width={size || width}
     height={size || height}
-    viewBox="0 0 32.000000 32.000000"
     preserveAspectRatio="xMidYMid meet"
+    version="1.0"
+    viewBox="0 0 32.000000 32.000000"
+    width={size || width}
+    xmlns="http://www.w3.org/2000/svg"
     {...props}
   >
     <g
-      transform="translate(0.000000,32.000000) scale(0.100000,-0.100000)"
       fill="currentColor"
       stroke="none"
+      transform="translate(0.000000,32.000000) scale(0.100000,-0.100000)"
     >
-      <path
-        d="M152.5 284.5 c-3.1 -4.8 -134.5 -231.8 -134.5 -233.1 0 -1.8 284 -1.8 284 0 0 1.2 -131.5 228.3 -134.5 233.1 -3.1 5 -11.9 5 -15 0 z"
-      />
+      <path d="M152.5 284.5 c-3.1 -4.8 -134.5 -231.8 -134.5 -233.1 0 -1.8 284 -1.8 284 0 0 1.2 -131.5 228.3 -134.5 233.1 -3.1 5 -11.9 5 -15 0 z" />
     </g>
   </svg>
 );

@@ -30,7 +30,7 @@ export const Navbar = () => {
               <NextLink
                 className={clsx(
                   linkStyles({ color: "foreground" }),
-                  "data-[active=true]:text-primary data-[active=true]:font-medium"
+                  "data-[active=true]:text-primary data-[active=true]:font-medium",
                 )}
                 color="foreground"
                 href={item.href}
@@ -47,7 +47,13 @@ export const Navbar = () => {
         justify="end"
       >
         <NavbarItem className="hidden sm:flex gap-6">
-          <Link size="md" color="foreground" href={siteConfig.navMenuItems[1].href}>{siteConfig.navMenuItems[1].label}</Link>
+          <Link
+            color="foreground"
+            href={siteConfig.navMenuItems[1].href}
+            size="md"
+          >
+            {siteConfig.navMenuItems[1].label}
+          </Link>
           <ThemeSwitch />
         </NavbarItem>
       </NavbarContent>

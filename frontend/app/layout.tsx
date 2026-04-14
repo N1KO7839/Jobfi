@@ -1,6 +1,5 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
-import { Link } from "@heroui/link";
 import clsx from "clsx";
 
 import { Providers } from "./providers";
@@ -48,8 +47,7 @@ export default function RootLayout({
             <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
               {children}
             </main>
-            {/* <footer className="w-full flex items-center justify-center py-3"></footer> */}
-            <Footer/>
+            <Footer />
           </div>
         </Providers>
       </body>
