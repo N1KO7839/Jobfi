@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from scrapers.JustJoinItScraper import JustJoinItScraper
+from .scrapers.JustJoinIt_scraper import JustJoinItScraper
 
 app = FastAPI()
 
