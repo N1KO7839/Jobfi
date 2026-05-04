@@ -1,11 +1,9 @@
 from abc import ABC, abstractmethod
-from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.jobOfferSchema import JobOfferSchema
-from app.core.repositories.job_offers_repository import JobOffersRepository
+from backend.app.repositories.job_offers_repository import JobOffersRepository
 
 
-
-class baseScraper(ABC):
+class BaseScraper(ABC):
     @abstractmethod
     async def scrape(self, query) -> list[JobOfferSchema]:
         pass
@@ -14,7 +12,7 @@ class baseScraper(ABC):
         try:
             job_repository = JobOffersRepository()
             is_job_present = job_repository.get_by_url(job_offer.url)
-            if is_job_present == None:
+            if is_job_present is None:
                 return False
             else:
                 job_repository.insert_offer(job_offer)
