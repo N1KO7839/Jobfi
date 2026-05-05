@@ -1,13 +1,16 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from .scrapers.JustJoinIt_scraper import JustJoinItScraper
+from app.scheduler_setup import start_scheduler, scheduler
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    start_scheduler()
+    yield
+    scheduler.shutdown()
+
+app = FastAPI(lifespan=lifespan)
 
 
 @app.get("/")
 async def root():
-    scraperJustJoin = JustJoinItScraper(5)
-    jobOffers = await scraperJustJoin.scrape(
-        "https://justjoin.it/job-offers/remote?workplace=hybrid&with-salary=yes&orderBy=DESC&sortBy=published"
-    )
-    return jobOffers
+    pass

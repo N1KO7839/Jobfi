@@ -12,7 +12,7 @@ class JobOffersRepository(BaseRepository):
 
     async def get_by_url(self, job_offer_url: str) -> JobOffer:
         stmt = select(JobOffer).where(JobOffer.url == job_offer_url)
-        result = self.session.scalar(statement=stmt)
+        result = await self.session.scalar(statement=stmt)
         return result
 
     async def insert_offer(self, job_offer: JobOffer) -> JobOffer:
