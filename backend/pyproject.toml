@@ -29,6 +29,7 @@ dependencies = [
     "markupsafe==3.0.3",
     "mdurl==0.1.2",
     "patchright>=1.58.2",
+    "psycopg2-binary>=2.9.12",
     "pydantic==2.12.5",
     "pydantic-core==2.41.5",
     "pygments==2.19.2",
