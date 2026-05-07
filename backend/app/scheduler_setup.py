@@ -17,8 +17,10 @@ database_url = os.getenv("DATABASE_URL")
 if not database_url:
     raise ValueError("DATABASE_URL is not set")
 
+sync_database_url = database_url.replace("+asyncpg", "")
+
 jobstores = {
-    'default': SQLAlchemyJobStore(url=database_url)
+    'default': SQLAlchemyJobStore(url=sync_database_url)
 }
 executors = {
     'default': AsyncIOExecutor(),

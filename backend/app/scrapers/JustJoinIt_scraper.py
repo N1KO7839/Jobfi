@@ -4,8 +4,8 @@ from .base_scraper import BaseScraper
 
 
 class JustJoinItScraper(BaseScraper):
-    def __init__(self, numberOfOffers):
-        self.number_of_offers = numberOfOffers
+    def __init__(self, numberOfOffers, session=None):
+        super().__init__(numberOfOffers, session)
         self.job_offers = []
         
 
@@ -101,5 +101,5 @@ class JustJoinItScraper(BaseScraper):
 
             await browser.close()
             for jobOffer in self.job_offers:
-                self.save_to_db(jobOffer)
+                await self.save_to_db(jobOffer)
         return self.job_offers
