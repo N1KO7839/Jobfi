@@ -18,3 +18,4 @@ class JobOffersRepository(BaseRepository):
     async def insert_offer(self, job_offer: JobOffer) -> JobOffer:
         self.session.add(job_offer)
         await self.session.commit()
+        return job_offer

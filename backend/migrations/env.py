@@ -14,14 +14,13 @@ from sqlmodel import SQLModel
 
 sys.path.append(str(Path(__file__).parent.parent))
 
+from dotenv import load_dotenv
 
-from app.models import *
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
-from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).parent.parent.parent / ".env")
 

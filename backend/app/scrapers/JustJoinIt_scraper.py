@@ -7,7 +7,6 @@ class JustJoinItScraper(BaseScraper):
     def __init__(self, numberOfOffers, session=None):
         super().__init__(numberOfOffers, session)
         self.job_offers = []
-        
 
     async def scrape(self, query) -> list:
         async with async_playwright() as p:
@@ -74,7 +73,7 @@ class JustJoinItScraper(BaseScraper):
                             salary_str = await page.locator(
                                 "div.mui-1f21jp8"
                             ).first.inner_text()
-                        except:
+                        except Exception:
                             salary_str = "Undisclosed"
 
                     job_data = {
