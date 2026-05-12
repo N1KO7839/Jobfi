@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 import re
 from decimal import Decimal
-from app.schemas.jobOfferSchema import JobOfferSchema
 from ..repositories.job_offers_repository import JobOffersRepository
 
 def _parse_salary(salary_raw) -> Decimal:

@@ -15,6 +15,10 @@ class User(SQLModel, table=True):
     )
     updated_datetime: datetime = Field(
         sa_column=Column(
-            TIMESTAMP(timezone=True), nullable=False, server_onupdate=text("now()")
+            TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"), server_onupdate=text("now()")
         )
     )
+
+class UserCreateLogin(SQLModel):
+    email: str
+    password: str
