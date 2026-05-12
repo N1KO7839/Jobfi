@@ -21,6 +21,10 @@ from app.models import *
 # access to the values within the .ini file in use.
 config = context.config
 
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).parent.parent.parent / ".env")
+
 url = os.path.expandvars(config.get_main_option("sqlalchemy.url", ""))
 if url:
     config.set_main_option("sqlalchemy.url", url)
@@ -78,9 +82,11 @@ async def run_async_migrations() -> None:
     and associate a connection with the context.
 
     """
+    configuration = config.get_section(config.config_ini_section, {})
+    configuration["sqlalchemy.url"] = url
 
     connectable = async_engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        configuration,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
