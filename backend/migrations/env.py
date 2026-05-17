@@ -11,8 +11,10 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 from sqlmodel import SQLModel
 
-
 sys.path.append(str(Path(__file__).parent.parent))
+
+from app.models.job import JobOffer
+from app.models.preference import UserPreference
 
 from dotenv import load_dotenv
 

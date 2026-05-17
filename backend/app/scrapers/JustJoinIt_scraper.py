@@ -1,6 +1,7 @@
 import json
 from patchright.async_api import async_playwright
 from .base_scraper import BaseScraper
+import re
 
 
 class JustJoinItScraper(BaseScraper):
@@ -65,31 +66,37 @@ class JustJoinItScraper(BaseScraper):
                     min_s = salary_value.get("minValue")
                     max_s = salary_value.get("maxValue")
                     curr = base_salary.get("currency", "")
+                    unit_text = salary_value.get("unitText", "")
 
                     if min_s and max_s:
-                        salary_str = f"{min_s} - {max_s} {curr}"
+                        salary_str = f"{min_s} - {max_s} {curr} {unit_text}"
                     else:
                         try:
-                            salary_str = await page.locator(
-                                "div.mui-1f21jp8"
-                            ).first.inner_text()
+                            content_text = await page.content()
+                            salary_matches = re.findall(r'(\d{1,3}(?:\s\d{3})*)\s*(?:-|–)\s*(\d{1,3}(?:\s\d{3})*)\s*(PLN|USD|EUR)', content_text)
+                            if salary_matches:
+                                salary_str = f"{salary_matches[0][0]} - {salary_matches[0][1]} {salary_matches[0][2]}"
+                            else:
+                                salary_str = "Undisclosed"
                         except Exception:
                             salary_str = "Undisclosed"
+                            
+                    try:
+                        tech_elements = await page.locator("h4").all_inner_texts()
+                        tech_stack = [t.strip() for t in tech_elements if t.strip() and len(t) < 30]
+                    except Exception:
+                        tech_stack = []
 
                     job_data = {
                         "title": schema_data.get("title")
                         or await page.locator("h1").inner_text(),
                         "company": hiring_org.get("name")
-                        or await page.locator("h2.mui-1lgfpg4").inner_text(),
+                        or await page.locator("h2").first.inner_text(),
                         "salary": salary_str,
-                        "techStack": await page.locator(
-                            "div.mui-vdxqko"
-                        ).all_inner_texts(),
+                        "techStack": tech_stack,
                         "location": address.get("addressLocality")
-                        or await page.locator("div.mui-1lgfpg4").first.inner_text(),
-                        "workingMode": await page.locator(".mui-15p6y0p")
-                        .nth(3)
-                        .inner_text(),
+                        or "Remote",
+                        "workingMode": "Remote" if "Remote" in await page.content() or "remote" in await page.content().lower() else "Office",
                         "url": page.url,
                     }
                     self.job_offers.append(job_data)

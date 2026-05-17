@@ -4,18 +4,32 @@ from decimal import Decimal
 from ..repositories.job_offers_repository import JobOffersRepository
 
 
-def _parse_salary(salary_raw) -> Decimal:
+def _parse_salary(salary_raw):
     if isinstance(salary_raw, (int, float, Decimal)):
-        return Decimal(salary_raw)
+        return Decimal(salary_raw), "PLN", "monthly"
 
     text_val = str(salary_raw).replace(" ", "").replace("\xa0", "").replace(",", ".")
+    text_lower = text_val.lower()
+    
+    currency = "USD" if "usd" in text_lower or "$" in text_lower else "PLN"
+    period = "hourly" if "hour" in text_lower or "/h" in text_lower or "godz" in text_lower else "monthly"
+    
     numbers = re.findall(r"\d+(?:\.\d+)?", text_val)
 
-    if not numbers:
-        return Decimal(0)
-    if len(numbers) >= 2:
-        return Decimal((float(numbers[0]) + float(numbers[1])) / 2)
-    return Decimal(numbers[0])
+    result_val = Decimal(0)
+    if numbers:
+        if len(numbers) >= 2:
+            result_val = Decimal(round((float(numbers[0]) + float(numbers[1])) / 2))
+        else:
+            result_val = Decimal(round(float(numbers[0])))
+
+    if result_val > 0:
+        if result_val < 500 and period == "monthly":
+            period = "hourly"
+        elif 500 <= result_val < 3000 and period == "monthly":
+            period = "daily"
+
+    return result_val, currency, period
 
 
 class BaseScraper(ABC):
@@ -41,10 +55,13 @@ class BaseScraper(ABC):
             if is_job_present is not None:
                 return False
             else:
+                salary_val, currency, period = _parse_salary(job_offer_dict.get("salary", 0))
                 new_offer = JobOffer(
                     title=job_offer_dict.get("title", "Unknown"),
                     company=job_offer_dict.get("company", "Unknown"),
-                    salary=_parse_salary(job_offer_dict.get("salary", 0)),
+                    salary=salary_val,
+                    currency=currency,
+                    salary_period=period,
                     tech_stack=",".join(job_offer_dict.get("techStack", [])),
                     location=job_offer_dict.get("location", "Remote"),
                     working_mode=job_offer_dict.get("workingMode", "Remote")[:50],
