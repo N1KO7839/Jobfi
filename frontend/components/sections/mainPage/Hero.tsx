@@ -26,13 +26,13 @@ export default function Hero() {
           variant="shadow"
           onClick={() => router.push("/register")}
         >
-          Get started with Jobfi
+          Create free account
         </Button>
         <Button
           color="default"
           size="lg"
           variant="bordered"
-          onClick={() => router.push("#")}
+          onClick={() => router.push("/about")}
         >
           Learn more
         </Button>

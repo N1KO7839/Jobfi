@@ -1,7 +1,7 @@
 import { Link } from "@heroui/link";
 export default function Footer() {
   return (
-    <section className="flex flex-col my-8 mb-40">
+    <section className="flex flex-col my-8 mb-12">
       <div className="mb-8 h-0.5 bg-gradient-to-r dark:from-black dark:via-white/40 dark:to-black from-white via-black/20 to-white" />
       <div className="flex flex-row justify-between mx-80">
         <div className="flex flex-col gap-5">

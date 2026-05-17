@@ -11,7 +11,7 @@ export default function BenefitsCard({
   description,
 }: BenefitsCardProps) {
   return (
-    <Card isBlurred className="py-8 bg-purple-400/15 dark:bg-purple-400/15">
+    <Card isBlurred className="py-8 bg-purple-400/15 dark:bg-purple-500/15">
       {
         {
           "Always Active": (

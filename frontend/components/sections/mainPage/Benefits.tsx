@@ -1,4 +1,4 @@
-import BenefitsCard from "../BenefitsCard";
+import BenefitsCard from "../../BenefitsCard";
 const Benefits = () => {
   return (
     <section className="flex flex-col gap-8 pt-10 pb-20">
