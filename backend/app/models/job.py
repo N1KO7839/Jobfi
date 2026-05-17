@@ -14,6 +14,8 @@ class JobOffer(SQLModel, table=True):
     title: str
     company: str
     salary: Decimal = Field(default=0)
+    currency: str = "PLN"
+    salary_period: str = "monthly"
     tech_stack: str = ""
     location: Optional[str] = None
     working_mode: str = "Remote"
