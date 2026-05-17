@@ -7,7 +7,7 @@ const GetStarted = () => {
   const router = useRouter();
 
   return (
-    <div className="flex flex-row justify-between items-center bg-purple-400/15 dark:bg-purple-500/15 rounded-xl p-6 py-14 mb-20">
+    <div className="flex flex-row justify-between items-center bg-purple-400/15 dark:bg-purple-500/15 rounded-xl px-10 py-14 mb-20">
       <div className="flex flex-col">
         <div className="flex flex-row items-center gap-2">
           <CircleDollarSign
