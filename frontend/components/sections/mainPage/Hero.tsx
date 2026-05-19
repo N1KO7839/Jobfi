@@ -19,8 +19,9 @@ export default function Hero() {
           Find opportunities that match your skills
         </div>
       </div>
-      <div className="flex flex-row gap-5">
+      <div className="flex flex-col sm:flex-row gap-5 w-full sm:w-auto px-4 sm:px-0">
         <Button
+          className="w-full sm:w-auto"
           color="secondary"
           size="lg"
           variant="shadow"
@@ -29,6 +30,7 @@ export default function Hero() {
           Create free account
         </Button>
         <Button
+          className="w-full sm:w-auto"
           color="default"
           size="lg"
           variant="bordered"

@@ -36,8 +36,8 @@ def create_refresh_token(data: dict):
 def verify_token(token: str):
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
+        username = payload.get("sub")
+        if not isinstance(username, str):
             return None
         return payload
     except JWTError:
@@ -54,14 +54,20 @@ async def register_user(user: UserCreateLogin, session: AsyncSession) -> User:
     hashed_password = bcrypt.hashpw(
         user.password.encode("utf-8"), bcrypt.gensalt()
     ).decode("utf-8")
-    new_user = User(email=user.email, password=hashed_password)
+    now = datetime.now(timezone.utc)
+    new_user = User(
+        email=user.email,
+        password=hashed_password,
+        created_datetime=now,
+        updated_datetime=now,
+    )
     inserted_usr = await usr_repo.insert_user(new_user)
     return inserted_usr
 
 
 async def login_user(user: UserCreateLogin, session: AsyncSession):
     usr_repo = UserRepository(session)
-    usr: User = await usr_repo.get_by_email(user_email=user.email)
+    usr = await usr_repo.get_by_email(user_email=user.email)
 
     if usr is None:
         raise ValueError("User with this email doesn't exist")
