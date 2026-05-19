@@ -48,7 +48,7 @@ const AuthForm = ({ authType }: AuthFormProps) => {
   };
 
   return (
-    <Form action={handleSubmit} className="flex flex-col gap-4 w-3/4 p-6">
+    <Form action={handleSubmit} className="flex flex-col gap-4 w-full sm:w-3/4 p-2 sm:p-6">
       <Input
         isRequired
         label="Email"
