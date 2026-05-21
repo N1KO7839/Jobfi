@@ -1,11 +1,15 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { cookies } from "next/headers";
 
 import AuthForm from "@/components/AuthForm";
 
-const page = () => {
+const page = async () => {
   const LOGO_SIZE = 36;
+  const cookieStore = await cookies();
+  const isLoggedIn =
+    cookieStore.has("access_token") || cookieStore.has("refresh_token");
 
   return (
     <div className="flex flex-col justify-center items-center gap-6 mt-20">
@@ -23,13 +27,10 @@ const page = () => {
         <h3 className="text-default-500 text-sm sm:text-md font-medium text-center">
           Start receiving daily job alerts today.
         </h3>
-        <AuthForm authType="register" />
+        <AuthForm authType="register" isLoggedIn={isLoggedIn} />
         <div className="flex flex-col sm:flex-row justify-center items-center gap-1 sm:gap-2 text-sm sm:text-base">
           <h3>Already have an account?</h3>
-          <Link
-            className="text-purple-500 font-semibold"
-            href={"/auth/login"}
-          >
+          <Link className="text-purple-500 font-semibold" href={"/auth/login"}>
             Sign in
           </Link>
         </div>

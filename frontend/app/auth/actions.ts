@@ -1,6 +1,5 @@
 "use server";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import wretch from "wretch";
 
 async function setTokenCookies(accessToken: string, refreshToken: string) {
@@ -34,13 +33,6 @@ export async function submitRegisterForm(formData: FormData) {
       .post({ email, password })
       .json();
 
-    const { access_token, refresh_token } = result as {
-      access_token: string;
-      refresh_token: string;
-    };
-
-    await setTokenCookies(access_token, refresh_token);
-
     return { success: true, data: result };
   } catch (err: any) {
     return {
@@ -73,6 +65,65 @@ export async function submitLoginForm(formData: FormData) {
   } catch (err: any) {
     return {
       error: "Failed to login",
+      message: err.message || "Unknown error",
+      status: err.status,
+    };
+  }
+}
+
+export async function submitForgotPasswordForm(formData: FormData) {
+  const email = formData.get("email")?.toString();
+  const baseUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+
+  try {
+    const result = await wretch(`${baseUrl}/auth/forgot-password`)
+      .post({ email })
+      .json();
+
+    return { success: true, data: result };
+  } catch (err: any) {
+    return {
+      error: "Failed to send reset email",
+      message: err.message || "Unknown error",
+      status: err.status,
+    };
+  }
+}
+
+export async function submitResetPasswordForm(
+  formData: FormData,
+  token: string,
+) {
+  const new_password = formData.get("password")?.toString();
+  const baseUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+
+  try {
+    const result = await wretch(`${baseUrl}/auth/reset-password`)
+      .post({ token, new_password })
+      .json();
+
+    return { success: true, data: result };
+  } catch (err: any) {
+    return {
+      error: "Failed to reset password",
+      message: err.message || "Unknown error",
+      status: err.status,
+    };
+  }
+}
+
+export async function verifyEmailToken(token: string) {
+  const baseUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+
+  try {
+    const result = await wretch(`${baseUrl}/auth/verify?token=${token}`)
+      .get()
+      .json();
+
+    return { success: true, data: result };
+  } catch (err: any) {
+    return {
+      error: "Failed to verify email",
       message: err.message || "Unknown error",
       status: err.status,
     };

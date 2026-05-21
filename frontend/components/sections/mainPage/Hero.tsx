@@ -25,7 +25,7 @@ export default function Hero() {
           color="secondary"
           size="lg"
           variant="shadow"
-          onClick={() => router.push("/register")}
+          onClick={() => router.push("/auth/register")}
         >
           Create free account
         </Button>

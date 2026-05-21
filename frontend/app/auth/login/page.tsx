@@ -1,10 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
+import { cookies } from "next/headers";
 
 import AuthForm from "@/components/AuthForm";
 
-const page = () => {
+const page = async () => {
   const LOGO_SIZE = 36;
+  const cookieStore = await cookies();
+  const isLoggedIn = cookieStore.has("access_token") || cookieStore.has("refresh_token");
 
   return (
     <div className="flex flex-col justify-center items-center gap-6 mt-20">
@@ -22,7 +25,7 @@ const page = () => {
         <h3 className="text-default-500 text-sm sm:text-md font-medium">
           Welcome back! Please enter your details.
         </h3>
-        <AuthForm authType="login" />
+        <AuthForm authType="login" isLoggedIn={isLoggedIn} />
         <div className="flex flex-col sm:flex-row justify-center items-center gap-1 sm:gap-2 text-sm sm:text-base">
           <h3>Don&apos;t have an account yet?</h3>
           <Link
