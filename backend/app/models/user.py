@@ -8,6 +8,7 @@ class User(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     email: str
     password: str = Field(nullable=False)
+    is_verified: bool = Field(default=False)
     created_datetime: datetime = Field(
         sa_column=Column(
             TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
