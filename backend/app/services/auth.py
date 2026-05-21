@@ -33,6 +33,20 @@ def create_refresh_token(data: dict):
     return encoded_jwt
 
 
+def create_verification_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + timedelta(minutes=60) # 1 hour
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, JWT_SECRET, algorithm=ALGORITHM)
+    return encoded_jwt
+
+def create_password_reset_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + timedelta(minutes=15) # 15 minutes
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, JWT_SECRET, algorithm=ALGORITHM)
+    return encoded_jwt
+
 def verify_token(token: str):
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[ALGORITHM])
@@ -74,6 +88,9 @@ async def login_user(user: UserCreateLogin, session: AsyncSession):
 
     if not bcrypt.checkpw(user.password.encode("utf-8"), usr.password.encode("utf-8")):
         raise ValueError("Password doesn't match")
+
+    if not usr.is_verified:
+        raise ValueError("Email is not verified. Please check your inbox.")
 
     access_token = create_access_token(data={"sub": usr.email, "id": str(usr.id)})
     refresh_token = create_refresh_token(data={"sub": usr.email, "id": str(usr.id)})

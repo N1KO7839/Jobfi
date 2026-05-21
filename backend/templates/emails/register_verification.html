@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verify your Jobfi account</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
+  .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
+  .card { background-color: #ffffff; border-radius: 16px; padding: 40px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); text-align: center; border: 1px solid #e2e8f0; }
+  .logo { font-size: 28px; font-weight: bold; color: #9333ea; margin-bottom: 24px; text-decoration: none; display: inline-block; letter-spacing: -0.5px; }
+  .title { font-size: 24px; font-weight: bold; color: #0f172a; margin-bottom: 16px; }
+  .text { font-size: 16px; color: #475569; line-height: 1.6; margin-bottom: 24px; }
+  .button { display: inline-block; background-color: #9333ea; color: #ffffff !important; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 16px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(147, 51, 234, 0.3); transition: background-color 0.2s; }
+  .button:hover { background-color: #7e22ce; }
+  .footer { font-size: 14px; color: #94a3b8; margin-top: 32px; text-align: center; }
+  .muted { font-size: 14px; color: #64748b; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <a href="{{ frontend_url }}" class="logo">Jobfi</a>
+      <h1 class="title">Verify your email</h1>
+      <p class="text">Hi {{ user.name }},</p>
+      <p class="text">Welcome to Jobfi! We're excited to have you on board. Please verify your email address to unlock all features and start automating your job search.</p>
+      
+      <a href="{{ verification_url }}" class="button">Verify Email Address</a>
+      
+      <p class="text muted">If the button doesn't work, copy and paste this link into your browser:<br>
+      <a href="{{ verification_url }}" style="color: #9333ea; word-break: break-all;">{{ verification_url }}</a></p>
+      
+      <p class="text" style="margin-bottom: 0;">Happy hunting,<br>The Jobfi Team</p>
+    </div>
+    <div class="footer">
+      &copy; {{ current_year }} Jobfi. All rights reserved.<br>
+      You received this email because you created an account on Jobfi.
+    </div>
+  </div>
+</body>
+</html>

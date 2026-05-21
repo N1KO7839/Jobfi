@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome back to Jobfi</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
+  .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
+  .card { background-color: #ffffff; border-radius: 16px; padding: 40px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); text-align: center; border: 1px solid #e2e8f0; }
+  .logo { font-size: 28px; font-weight: bold; color: #9333ea; margin-bottom: 24px; text-decoration: none; display: inline-block; letter-spacing: -0.5px; }
+  .title { font-size: 24px; font-weight: bold; color: #0f172a; margin-bottom: 16px; }
+  .text { font-size: 16px; color: #475569; line-height: 1.6; margin-bottom: 24px; }
+  .footer { font-size: 14px; color: #94a3b8; margin-top: 32px; text-align: center; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <a href="{{ frontend_url }}" class="logo">Jobfi</a>
+      <h1 class="title">Welcome back!</h1>
+      <p class="text">Hello {{ user.name }},</p>
+      <p class="text">We noticed a new login to your Jobfi account. It's great to see you again! We hope you find the perfect opportunities today.</p>
+      <p class="text">If this was you, you can safely ignore this email. If you did not log in, please reset your password immediately.</p>
+    </div>
+    <div class="footer">
+      &copy; {{ current_year }} Jobfi. All rights reserved.<br>
+      You are receiving this email because you have a Jobfi account.
+    </div>
+  </div>
+</body>
+</html>
