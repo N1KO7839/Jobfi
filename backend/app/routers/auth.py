@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Body
+from fastapi import APIRouter, Depends, HTTPException, status, Header
 from sqlalchemy.ext.asyncio import AsyncSession
 import os
 from pydantic import BaseModel
@@ -11,7 +11,7 @@ from app.services.auth import (
     create_password_reset_token,
 )
 from app.services.emails import send_verification_mail, send_reset_password_mail, send_login_mail
-from app.models.user import UserCreateLogin
+from app.models.user import UserCreateLogin, User
 from app.repositories.user_repository import UserRepository
 from app.core.db import get_session
 import bcrypt
@@ -24,6 +24,10 @@ class EmailSchema(BaseModel):
 
 class ResetPasswordSchema(BaseModel):
     token: str
+    new_password: str
+
+class ChangePasswordSchema(BaseModel):
+    current_password: str
     new_password: str
 
 @router.post("/register")
@@ -63,7 +67,8 @@ async def verify_email(token: str, session: AsyncSession = Depends(get_session))
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     
     user.is_verified = True
-    session.add(user)
+    # Use merge to ensure detached instances are properly updated instead of attempting an insert
+    await session.merge(user)
     await session.commit()
     return {"message": "Email verified successfully"}
 
@@ -96,7 +101,7 @@ async def reset_password(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid or expired reset token",
         )
-        
+    
     user_id = verified_token.get("id")
     if user_id is None:
         raise HTTPException(
@@ -107,15 +112,79 @@ async def reset_password(
     user = await usr_repo.get_by_id(user_id)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-        
+    
     hashed_password = bcrypt.hashpw(
         data.new_password.encode("utf-8"), bcrypt.gensalt()
     ).decode("utf-8")
     
     user.password = hashed_password
-    session.add(user)
+    await session.merge(user)
     await session.commit()
     return {"message": "Password updated successfully"}
+
+
+@router.post("/change-password")
+async def change_password(
+    data: ChangePasswordSchema,
+    authorization: str = Header(None),
+    session: AsyncSession = Depends(get_session)
+):
+    if not authorization:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authorization header is missing"
+        )
+    
+    try:
+        scheme, token = authorization.split()
+        if scheme.lower() != "bearer":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication scheme"
+            )
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authorization header format"
+        )
+    
+    verified_token = verify_token(token)
+    if not verified_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token"
+        )
+    
+    user_id = verified_token.get("id")
+    if user_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token payload"
+        )
+    
+    usr_repo = UserRepository(session)
+    user = await usr_repo.get_by_id(user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    if not bcrypt.checkpw(data.current_password.encode("utf-8"), user.password.encode("utf-8")):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Current password is incorrect"
+        )
+    
+    hashed_password = bcrypt.hashpw(
+        data.new_password.encode("utf-8"), bcrypt.gensalt()
+    ).decode("utf-8")
+    
+    user.password = hashed_password
+    await session.merge(user)
+    await session.commit()
+    
+    return {"message": "Password changed successfully"}
 
 
 @router.post("/login")

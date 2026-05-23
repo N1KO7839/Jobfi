@@ -142,3 +142,24 @@ export async function Logout() {
     return { success: false, error: err.message };
   }
 }
+
+export async function submitChangePasswordForm(formData: FormData) {
+  const currentPassword = formData.get("currentPassword")?.toString();
+  const newPassword = formData.get("newPassword")?.toString();
+
+  const baseUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+
+  try {
+    const result = await wretch(`${baseUrl}/auth/change-password`)
+      .post({ currentPassword, newPassword })
+      .json();
+
+    return { success: true, data: result };
+  } catch (err: any) {
+    return {
+      error: "Failed to change password",
+      message: err.message || "Unknown error",
+      status: err.status,
+    };
+  }
+}

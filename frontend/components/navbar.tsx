@@ -29,6 +29,7 @@ import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 
 import { Logout } from "@/app/auth/actions";
+import { User } from "lucide-react";
 
 export const Navbar = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -37,7 +38,7 @@ export const Navbar = () => {
   const handleLogout = async (onClose: () => void) => {
     try {
       const result = await Logout();
-      
+
       if (result?.success) {
         onClose();
         addToast({
@@ -106,6 +107,13 @@ export const Navbar = () => {
             Logout
           </Link>
           <ThemeSwitch />
+          <Link
+            color="foreground"
+            href={siteConfig.navMenuItems[3].href}
+            size="md"
+          >
+            <User size={22} />
+          </Link>
         </NavbarItem>
       </NavbarContent>
 
@@ -145,7 +153,7 @@ export const Navbar = () => {
                 color={
                   index === 1
                     ? "primary"
-                    : index === siteConfig.navMenuItems.length - 1
+                    : index === siteConfig.navMenuItems.length - 2
                       ? "danger"
                       : "foreground"
                 }

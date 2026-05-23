@@ -6,6 +6,7 @@ import { Input } from "@heroui/input";
 import { addToast } from "@heroui/toast";
 import Image from "next/image";
 import { Suspense } from "react";
+import { passwordPattern, passwordRequirements } from "@/config/constants";
 
 import { submitResetPasswordForm } from "@/app/auth/actions";
 
@@ -69,24 +70,24 @@ const ResetPasswordForm = () => {
       action={handleSubmit}
       className="flex flex-col gap-4 w-full sm:w-3/4 p-2 sm:p-6"
     >
-      <Input
-        isRequired
-        label="New Password"
-        minLength={8}
-        name="password"
-        pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,16}$"
-        placeholder="********"
-        type="password"
-      />
-      <Input
-        isRequired
-        label="Confirm Password"
-        minLength={8}
-        name="confirmPassword"
-        pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,16}$"
-        placeholder="********"
-        type="password"
-      />
+       <Input
+         isRequired
+         label="New Password"
+         minLength={passwordRequirements.minLength}
+         name="password"
+         pattern={passwordPattern.source}
+         placeholder="********"
+         type="password"
+       />
+       <Input
+         isRequired
+         label="Confirm Password"
+         minLength={passwordRequirements.minLength}
+         name="confirmPassword"
+         pattern={passwordPattern.source}
+         placeholder="********"
+         type="password"
+       />
       <Button color="secondary" type="submit">
         Reset Password
       </Button>

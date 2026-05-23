@@ -18,6 +18,7 @@ import {
   submitLoginForm,
   submitForgotPasswordForm,
 } from "@/app/auth/actions";
+import { passwordPattern, passwordRequirements } from "@/config/constants";
 
 type AuthFormProps = {
   authType: "login" | "register";
@@ -119,9 +120,9 @@ const AuthForm = ({ authType, isLoggedIn = false }: AuthFormProps) => {
           <Input
             isRequired
             label="Password"
-            minLength={8}
+            minLength={passwordRequirements.minLength}
             name="password"
-            pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,16}$"
+            pattern={passwordPattern.source}
             placeholder="********"
             type="password"
           />
@@ -136,11 +137,11 @@ const AuthForm = ({ authType, isLoggedIn = false }: AuthFormProps) => {
           )}
         </div>
         {authType == "register" ? (
-          <Button color="secondary" type="submit" isDisabled={isLoggedIn}>
+          <Button color="secondary" isDisabled={isLoggedIn} type="submit">
             Register
           </Button>
         ) : (
-          <Button color="secondary" type="submit" isDisabled={isLoggedIn}>
+          <Button color="secondary" isDisabled={isLoggedIn} type="submit">
             Login
           </Button>
         )}
