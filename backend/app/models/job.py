@@ -5,6 +5,7 @@ from uuid import UUID, uuid4
 
 from sqlalchemy import text
 from sqlmodel import Field, SQLModel
+from typing import Literal
 
 
 class JobOffer(SQLModel, table=True):
@@ -27,3 +28,6 @@ class JobOffer(SQLModel, table=True):
     updated_datetime: datetime = Field(
         default_factory=datetime.utcnow, sa_column_kwargs={"onupdate": text("now()")}
     )
+    
+    
+ordered_by_type = Literal["payment_asc", "payment_desc", "date_asc", "date_desc"]

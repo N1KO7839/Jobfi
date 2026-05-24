@@ -11,7 +11,7 @@ from app.services.auth import (
     create_password_reset_token,
 )
 from app.services.emails import send_verification_mail, send_reset_password_mail, send_login_mail
-from app.models.user import UserCreateLogin, User
+from app.models.user import UserCreateLogin
 from app.repositories.user_repository import UserRepository
 from app.core.db import get_session
 import bcrypt

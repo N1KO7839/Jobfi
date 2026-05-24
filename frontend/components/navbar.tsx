@@ -24,12 +24,11 @@ import {
 } from "@heroui/modal";
 import { useRouter } from "next/navigation";
 import { addToast } from "@heroui/toast";
+import { User } from "lucide-react";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
-
 import { Logout } from "@/app/auth/actions";
-import { User } from "lucide-react";
 
 export const Navbar = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
