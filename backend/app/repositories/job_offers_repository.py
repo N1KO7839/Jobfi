@@ -30,7 +30,13 @@ class JobOffersRepository(BaseRepository):
             case "date_desc":
                 stmt = select(JobOffer).order_by(JobOffer.created_datetime.desc(), JobOffer.id.asc())
 
-        stmt += stmt.limit({limit}).offset({offset})
+        stmt = stmt.limit(limit).offset(offset)
         
         result = await self.session.scalars(statement=stmt)
         return list(result.all())
+
+    async def get_total_count(self) -> int:
+        from sqlalchemy import func
+        stmt = select(func.count()).select_from(JobOffer)
+        result = await self.session.scalar(stmt)
+        return result or 0

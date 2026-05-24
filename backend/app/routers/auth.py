@@ -67,10 +67,9 @@ async def verify_email(token: str, session: AsyncSession = Depends(get_session))
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     
     user.is_verified = True
-    # Use merge to ensure detached instances are properly updated instead of attempting an insert
     await session.merge(user)
     await session.commit()
-    return {"message": "Email verified successfully"}
+    return {"message": "Email verified successfully", "user": user}
 
 @router.post("/forgot-password")
 async def forgot_password(
