@@ -48,7 +48,7 @@ def start_scheduler():
             scheduler.add_job(
                 scheduled_scrape_task,
                 trigger="interval",
-                hours=4,
+                hours=1,
                 id="scrape_all_job",
                 replace_existing=True,
                 next_run_time=datetime.now(utc),

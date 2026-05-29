@@ -7,7 +7,8 @@ import AuthForm from "@/components/AuthForm";
 const page = async () => {
   const LOGO_SIZE = 36;
   const cookieStore = await cookies();
-  const isLoggedIn = cookieStore.has("access_token") || cookieStore.has("refresh_token");
+  const isLoggedIn =
+    cookieStore.has("access_token") || cookieStore.has("refresh_token");
 
   return (
     <div className="flex flex-col justify-center items-center gap-6 mt-20">
@@ -21,7 +22,9 @@ const page = async () => {
         <h1 className="text-2xl font-semibold">Jobfi</h1>
       </div>
       <div className="flex flex-col justify-center items-center bg-purple-400/15 dark:bg-slate-800/20 w-11/12 sm:w-[500px] py-16 px-4 sm:px-8 rounded-2xl gap-2 text-center">
-        <h2 className="text-xl sm:text-2xl font-bold">Log in to your account</h2>
+        <h2 className="text-xl sm:text-2xl font-bold">
+          Log in to your account
+        </h2>
         <h3 className="text-default-500 text-sm sm:text-md font-medium">
           Welcome back! Please enter your details.
         </h3>

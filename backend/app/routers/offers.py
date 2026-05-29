@@ -5,7 +5,7 @@ from app.services.offers import get_paginated_offers
 
 router = APIRouter()
 
-@router.get("/offers")
+@router.get("")
 async def getAllOffers(
     page: int = 1,
     size: int = 8,
