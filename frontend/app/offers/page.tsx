@@ -4,6 +4,10 @@ import { Spinner } from "@heroui/spinner";
 
 import RedirectWithToast from "./RedirectWithToast";
 import PaginatedOffers from "./PaginatedOffers";
+import OffersFilter from "./OffersFilter";
+import { fetchLocations } from "./actions";
+
+import { sort_type } from "@/types/offers";
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -21,7 +25,17 @@ const page = async ({ searchParams }: PageProps) => {
   const resolvedSearchParams = await searchParams;
   const pageParam = Number(resolvedSearchParams?.page) || 1;
   const sizeParam = Number(resolvedSearchParams?.size) || 10;
-  const sortTypeParam = (resolvedSearchParams?.sort_type as any) || "date_desc";
+  const sortTypeParam =
+    (resolvedSearchParams?.sort_type as sort_type) || "date_desc";
+
+  const minSalaryParam = resolvedSearchParams?.min_salary as string | undefined;
+  const maxSalaryParam = resolvedSearchParams?.max_salary as string | undefined;
+  const workingModeParam = resolvedSearchParams?.working_mode as
+    | string
+    | undefined;
+  const locationParam = resolvedSearchParams?.location as string | undefined;
+
+  const locations = await fetchLocations();
 
   return (
     <div className="flex flex-col gap-8">
@@ -32,6 +46,8 @@ const page = async ({ searchParams }: PageProps) => {
         </h4>
       </div>
 
+      <OffersFilter locations={locations} />
+
       <Suspense
         fallback={
           <div className="flex justify-center py-8">
@@ -40,9 +56,13 @@ const page = async ({ searchParams }: PageProps) => {
         }
       >
         <PaginatedOffers
+          location={locationParam}
+          max_salary={maxSalaryParam}
+          min_salary={minSalaryParam}
           page={pageParam}
           size={sizeParam}
           sort_type={sortTypeParam}
+          working_mode={workingModeParam}
         />
       </Suspense>
     </div>

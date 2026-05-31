@@ -32,6 +32,11 @@ export const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
           <div>
             <span className="inline-block px-4 py-1.5 rounded-full bg-[#2A1D45] text-[#D0B5FA] text-[15px] font-semibold">
               {offer.salary} {offer.currency}
+              {offer.salary_period === "hourly"
+                ? " / hr"
+                : offer.salary_period === "monthly"
+                  ? " / mth"
+                  : ""}
             </span>
           </div>
         )}

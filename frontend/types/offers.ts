@@ -20,3 +20,9 @@ export interface JobResponse {
   page_size: number;
   total_pages: number;
 }
+
+export type sort_type =
+  | "date_desc"
+  | "date_asc"
+  | "payment_desc"
+  | "payment_asc";

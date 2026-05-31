@@ -30,7 +30,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-between mt-8 w-full max-w-5xl mx-auto px-4">
+    <div className="flex items-center justify-between mt-8 w-full px-4">
       <Button
         className="border-default-200 text-default-600 bg-transparent rounded-full px-5 font-medium hover:bg-default-100"
         isDisabled={currentPage <= 1}
