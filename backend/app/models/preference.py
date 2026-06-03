@@ -16,6 +16,7 @@ class UserPreference(SQLModel, table=True):
     preferred_location: Optional[str] = Field(default=None)
     preferred_tech_stack: Optional[list[str]] = Field(default=None, sa_column=Column(ARRAY(String)))
     preferred_salary_period: Optional[str] = Field(default=None)
+    notification_frequency: str = Field(default="none")
     created_datetime: datetime = Field(
         sa_column=Column(
             TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
@@ -23,6 +24,6 @@ class UserPreference(SQLModel, table=True):
     )
     updated_datetime: datetime = Field(
         sa_column=Column(
-            TIMESTAMP(timezone=True), nullable=False, server_onupdate=text("now()")
+            TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"), server_onupdate=text("now()")
         )
     )
