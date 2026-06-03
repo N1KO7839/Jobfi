@@ -10,7 +10,7 @@ async function setTokenCookies(accessToken: string, refreshToken: string) {
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 15 * 60,
+    maxAge: 24 * 60 * 60,
   });
 
   cookieStore.set("refresh_token", refreshToken, {
