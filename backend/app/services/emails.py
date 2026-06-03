@@ -77,3 +77,32 @@ def send_login_mail(user_mail, frontend_url: str = "http://localhost:3000"):
     except ApiException as e:
         print(f"Exception when calling TransactionalEmailsApi->send_transac_email: {e}")
         raise e
+
+from jinja2 import Environment, FileSystemLoader
+
+def send_job_notifications_mail(user_mail: str, jobs: list, frequency: str, frontend_url: str = "http://localhost:3000"):
+    import datetime
+    username = user_mail.split("@")[0]
+    
+    env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
+    template = env.get_template("job_notifications.html")
+    
+    html = template.render(
+        user={"name": username},
+        jobs=jobs,
+        frequency=frequency.capitalize(),
+        frontend_url=frontend_url,
+        current_year=str(datetime.datetime.now().year)
+    )
+    
+    send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+        to=[{"email": user_mail}],
+        html_content=html,
+        sender=SENDER,
+        subject=f"Your {frequency.capitalize()} Job Matches from Jobfi"
+    )
+    try:
+        return api_instance.send_transac_email(send_smtp_email)
+    except ApiException as e:
+        print(f"Exception when calling TransactionalEmailsApi->send_transac_email: {e}")
+        raise e

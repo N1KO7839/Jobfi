@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #2563eb; color: white; padding: 15px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { padding: 20px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; }
+        .job-item { border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px; }
+        .job-title { font-size: 18px; font-weight: bold; color: #1e40af; text-decoration: none; }
+        .job-company { font-weight: bold; color: #4b5563; }
+        .job-details { color: #6b7280; font-size: 14px; }
+        .job-salary { color: #059669; font-weight: bold; }
+        .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #9ca3af; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Your Jobfi {{ frequency }} Matches</h2>
+        </div>
+        <div class="content">
+            <p>Hi {{ user.name }},</p>
+            <p>Here are some new job offers that match your preferences:</p>
+            
+            {% for job in jobs %}
+            <div class="job-item">
+                <a href="{{ job.url }}" class="job-title">{{ job.title }}</a>
+                <div class="job-company">{{ job.company }}</div>
+                <div class="job-details">
+                    {% if job.location %}📍 {{ job.location }} | {% endif %}
+                    🏢 {{ job.working_mode }}
+                </div>
+                {% if job.salary and job.salary > 0 %}
+                <div class="job-salary">💰 {{ job.salary }} {{ job.currency }} / {{ job.salary_period }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            
+            <p>To change your notification settings or preferences, visit your <a href="{{ frontend_url }}/profile">Profile</a>.</p>
+        </div>
+        <div class="footer">
+            &copy; {{ current_year }} Jobfi. All rights reserved.
+        </div>
+    </div>
+</body>
+</html>
