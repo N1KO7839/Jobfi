@@ -11,7 +11,10 @@ from dotenv import load_dotenv
 
 from app.core.db import async_session
 from app.scrapers.scrapers_manager import scrape_all
-from app.services.notifications import send_daily_notifications, send_weekly_notifications
+from app.services.notifications import (
+    send_daily_notifications,
+    send_weekly_notifications,
+)
 
 
 load_dotenv()
@@ -54,7 +57,7 @@ def start_scheduler():
                 replace_existing=True,
                 next_run_time=datetime.now(utc),
             )
-        
+
         if not scheduler.get_job("daily_notifications_job"):
             scheduler.add_job(
                 send_daily_notifications,
@@ -75,7 +78,7 @@ def start_scheduler():
                 id="weekly_notifications_job",
                 replace_existing=True,
             )
-            
+
     except Exception as e:
         if (
             "duplicate key" not in str(e).lower()

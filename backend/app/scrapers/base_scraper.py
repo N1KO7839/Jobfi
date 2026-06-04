@@ -10,10 +10,14 @@ def _parse_salary(salary_raw):
 
     text_val = str(salary_raw).replace(" ", "").replace("\xa0", "").replace(",", ".")
     text_lower = text_val.lower()
-    
+
     currency = "USD" if "usd" in text_lower or "$" in text_lower else "PLN"
-    period = "hourly" if "hour" in text_lower or "/h" in text_lower or "godz" in text_lower else "monthly"
-    
+    period = (
+        "hourly"
+        if "hour" in text_lower or "/h" in text_lower or "godz" in text_lower
+        else "monthly"
+    )
+
     numbers = re.findall(r"\d+(?:\.\d+)?", text_val)
 
     result_val = Decimal(0)
@@ -55,7 +59,9 @@ class BaseScraper(ABC):
             if is_job_present is not None:
                 return False
             else:
-                salary_val, currency, period = _parse_salary(job_offer_dict.get("salary", 0))
+                salary_val, currency, period = _parse_salary(
+                    job_offer_dict.get("salary", 0)
+                )
                 new_offer = JobOffer(
                     title=job_offer_dict.get("title", "Unknown"),
                     company=job_offer_dict.get("company", "Unknown"),

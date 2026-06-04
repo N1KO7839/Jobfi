@@ -10,11 +10,13 @@ class UserPreference(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     user_id: UUID = Field(default_factory=uuid4, foreign_key="user.id")
     min_preferred_salary: Optional[Decimal] = Field(default=0)
-    max_preferred_salary: Optional[Decimal]  = Field(default=Decimal('9999999'))
+    max_preferred_salary: Optional[Decimal] = Field(default=Decimal("9999999"))
     preferred_currency: Optional[str] = Field(default="PLN")
     preferred_working_mode: Optional[str] = Field(default=None)
     preferred_location: Optional[str] = Field(default=None)
-    preferred_tech_stack: Optional[list[str]] = Field(default=None, sa_column=Column(ARRAY(String)))
+    preferred_tech_stack: Optional[list[str]] = Field(
+        default=None, sa_column=Column(ARRAY(String))
+    )
     preferred_salary_period: Optional[str] = Field(default=None)
     notification_frequency: str = Field(default="none")
     created_datetime: datetime = Field(
@@ -24,6 +26,9 @@ class UserPreference(SQLModel, table=True):
     )
     updated_datetime: datetime = Field(
         sa_column=Column(
-            TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"), server_onupdate=text("now()")
+            TIMESTAMP(timezone=True),
+            nullable=False,
+            server_default=text("now()"),
+            server_onupdate=text("now()"),
         )
     )

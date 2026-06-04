@@ -6,8 +6,13 @@ from jose import JWTError, jwt
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import AsyncSession
 import os
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from app.core.db import get_session
+
 
 load_dotenv()
+security = HTTPBearer()
 
 JWT_SECRET = os.getenv("SECRET_KEY", "your_secret_key")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
@@ -35,17 +40,19 @@ def create_refresh_token(data: dict):
 
 def create_verification_token(data: dict):
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + timedelta(minutes=60) # 1 hour
+    expire = datetime.now(timezone.utc) + timedelta(minutes=60)  # 1 hour
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, JWT_SECRET, algorithm=ALGORITHM)
     return encoded_jwt
 
+
 def create_password_reset_token(data: dict):
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + timedelta(minutes=15) # 15 minutes
+    expire = datetime.now(timezone.utc) + timedelta(minutes=15)  # 15 minutes
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, JWT_SECRET, algorithm=ALGORITHM)
     return encoded_jwt
+
 
 def verify_token(token: str):
     try:
@@ -57,15 +64,9 @@ def verify_token(token: str):
     except JWTError:
         return None
 
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from app.core.db import get_session
-
-security = HTTPBearer()
-
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
 ) -> User:
     token = credentials.credentials
     payload = verify_token(token)
@@ -80,12 +81,14 @@ async def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token payload",
         )
-    
+
     usr_repo = UserRepository(session)
     user = await usr_repo.get_by_id(user_id)
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+
     return user
 
 

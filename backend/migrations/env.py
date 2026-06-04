@@ -13,8 +13,6 @@ from sqlmodel import SQLModel
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-from app.models.job import JobOffer
-from app.models.preference import UserPreference
 
 from dotenv import load_dotenv
 

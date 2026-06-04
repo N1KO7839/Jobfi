@@ -18,14 +18,20 @@ class JustJoinItScraper(BaseScraper):
             page = await context.new_page()
 
             await page.goto(query, wait_until="domcontentloaded")
-            await page.wait_for_selector("a.offer-card")
+            await page.wait_for_selector("a.offer-card", state="attached")
+            await page.wait_for_load_state("networkidle")
 
             links = []
             cards = page.locator("a.offer-card")
             count = await cards.count()
 
             for i in range(min(self.number_of_offers, count)):
-                links.append(await cards.nth(i).get_attribute("href"))
+                try:
+                    href = await cards.nth(i).get_attribute("href", timeout=5000)
+                    if href:
+                        links.append(href)
+                except Exception:
+                    continue
 
             for link in links:
                 try:
@@ -73,17 +79,24 @@ class JustJoinItScraper(BaseScraper):
                     else:
                         try:
                             content_text = await page.content()
-                            salary_matches = re.findall(r'(\d{1,3}(?:\s\d{3})*)\s*(?:-|–)\s*(\d{1,3}(?:\s\d{3})*)\s*(PLN|USD|EUR)', content_text)
+                            salary_matches = re.findall(
+                                r"(\d{1,3}(?:\s\d{3})*)\s*(?:-|–)\s*(\d{1,3}(?:\s\d{3})*)\s*(PLN|USD|EUR)",
+                                content_text,
+                            )
                             if salary_matches:
                                 salary_str = f"{salary_matches[0][0]} - {salary_matches[0][1]} {salary_matches[0][2]}"
                             else:
                                 salary_str = "Undisclosed"
                         except Exception:
                             salary_str = "Undisclosed"
-                            
+
                     try:
                         tech_elements = await page.locator("h4").all_inner_texts()
-                        tech_stack = [t.strip() for t in tech_elements if t.strip() and len(t) < 30]
+                        tech_stack = [
+                            t.strip()
+                            for t in tech_elements
+                            if t.strip() and len(t) < 30
+                        ]
                     except Exception:
                         tech_stack = []
 
@@ -94,9 +107,11 @@ class JustJoinItScraper(BaseScraper):
                         or await page.locator("h2").first.inner_text(),
                         "salary": salary_str,
                         "techStack": tech_stack,
-                        "location": address.get("addressLocality")
-                        or "Remote",
-                        "workingMode": "Remote" if "Remote" in await page.content() or "remote" in await page.content().lower() else "Office",
+                        "location": address.get("addressLocality") or "Remote",
+                        "workingMode": "Remote"
+                        if "Remote" in await page.content()
+                        or "remote" in await page.content().lower()
+                        else "Office",
                         "url": page.url,
                     }
                     self.job_offers.append(job_data)
