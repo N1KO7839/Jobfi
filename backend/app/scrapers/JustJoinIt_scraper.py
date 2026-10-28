@@ -5,6 +5,8 @@ import re
 
 
 class JustJoinItScraper(BaseScraper):
+    name = "JustJoinIt"
+
     def __init__(self, numberOfOffers, session=None):
         super().__init__(numberOfOffers, session)
         self.job_offers = []
@@ -112,6 +114,7 @@ class JustJoinItScraper(BaseScraper):
                         if "Remote" in await page.content()
                         or "remote" in await page.content().lower()
                         else "Office",
+                        "source": self.name,
                         "url": page.url,
                     }
                     self.job_offers.append(job_data)

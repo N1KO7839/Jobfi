@@ -4,21 +4,32 @@ from pyvirtualdisplay import Display
 
 
 class PracujPlScraper(BaseScraper):
+    name = "Pracuj.pl"
+
     def __init__(self, number_of_offers, session=None):
         super().__init__(number_of_offers, session)
         self.job_offers = []
 
     async def scrape(self, query) -> list:
-        display = Display(visible=0, size=(1920, 1080))
-        display.start()
+        display = None
+        try:
+            display = Display(visible=0, size=(1920, 1080))
+            display.start()
+        except Exception:
+            display = None
 
         try:
             async with async_playwright() as p:
-                browser = await p.chromium.launch(
-                    headless=False,
-                    slow_mo=300,
-                    args=["--disable-blink-features=AutomationControlled"],
-                )
+                launch_kwargs = {
+                    "args": ["--disable-blink-features=AutomationControlled"],
+                }
+                if display is not None:
+                    launch_kwargs["headless"] = False
+                    launch_kwargs["slow_mo"] = 300
+                else:
+                    launch_kwargs["headless"] = True
+
+                browser = await p.chromium.launch(**launch_kwargs)
                 context = await browser.new_context(
                     user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
                 )
@@ -127,6 +138,7 @@ class PracujPlScraper(BaseScraper):
                             "workingMode": working_mode,
                             "techStack": tech_stack,
                             "description": description,
+                            "source": self.name,
                             "url": page.url,
                         }
                         self.job_offers.append(job_data)
@@ -143,4 +155,8 @@ class PracujPlScraper(BaseScraper):
             return self.job_offers
 
         finally:
-            display.stop()
+            if display is not None:
+                try:
+                    display.stop()
+                except Exception:
+                    pass
