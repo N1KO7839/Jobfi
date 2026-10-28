@@ -20,6 +20,7 @@ class JobOffer(SQLModel, table=True):
     tech_stack: str = ""
     location: Optional[str] = None
     working_mode: str = "Remote"
+    source: str = Field(default="Unknown")
     url: str
     created_datetime: datetime = Field(
         default_factory=datetime.utcnow,
