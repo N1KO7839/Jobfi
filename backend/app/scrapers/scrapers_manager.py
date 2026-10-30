@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .base_scraper import BaseScraper
 from .JustJoinIt_scraper import JustJoinItScraper
 from .Pracujpl_scraper import PracujPlScraper
+from .NoFluffJobs_scraper import NoFluffJobsScraper
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
@@ -41,6 +42,11 @@ SCRAPER_REGISTRY: list[ScraperConfig] = [
     ScraperConfig(
         scraper_class=PracujPlScraper,
         default_query="https://www.pracuj.pl/praca?cc=5015%2C5016%2C5013",
+        offers_count=15,
+    ),
+    ScraperConfig(
+        scraper_class=NoFluffJobsScraper,
+        default_query="https://nofluffjobs.com/pl/praca-it?criteria=jobLanguage%3Dpl,en",
         offers_count=15,
     ),
 ]
