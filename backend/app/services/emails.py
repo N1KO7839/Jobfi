@@ -87,6 +87,7 @@ def send_login_mail(user_mail, frontend_url: str = "http://localhost:3000"):
         print(f"Exception when calling TransactionalEmailsApi->send_transac_email: {e}")
         raise e
 
+
 def send_job_notifications_mail(
     user_mail: str,
     jobs: list,

@@ -64,6 +64,7 @@ def verify_token(token: str):
     except JWTError:
         return None
 
+
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     session: AsyncSession = Depends(get_session),
