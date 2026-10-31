@@ -8,6 +8,7 @@ from .base_scraper import BaseScraper
 from .JustJoinIt_scraper import JustJoinItScraper
 from .Pracujpl_scraper import PracujPlScraper
 from .NoFluffJobs_scraper import NoFluffJobsScraper
+from .TheProtocol_scraper import TheProtocolScraper
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
@@ -47,6 +48,11 @@ SCRAPER_REGISTRY: list[ScraperConfig] = [
     ScraperConfig(
         scraper_class=NoFluffJobsScraper,
         default_query="https://nofluffjobs.com/pl/praca-it?criteria=jobLanguage%3Dpl,en",
+        offers_count=15,
+    ),
+    ScraperConfig(
+        scraper_class=TheProtocolScraper,
+        default_query="https://theprotocol.it/filtry/wszystkie;p",
         offers_count=15,
     ),
 ]
