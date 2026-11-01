@@ -28,7 +28,7 @@
 
 ## 🎯 About
 
-Jobfi is a smart job aggregation platform that automatically scrapes job listings from Polish job boards (**JustJoinIt** and **Pracuj.pl**), matches them against your preferences, and delivers personalized notifications via email.
+Jobfi is a smart job aggregation platform that automatically scrapes job listings from top Polish tech job boards (**JustJoinIt**, **Pracuj.pl**, **No Fluff Jobs**, **The Protocol**, **Bulldogjob**, and **Solid.Jobs**), matches them against your preferences, and delivers personalized notifications via email.
 
 **Key highlights:**
 - 🔍 Automated hourly job scraping from multiple sources
@@ -183,7 +183,7 @@ Jobfi/
 │   │   ├── routers/         # API endpoints (auth, offers, preferences)
 │   │   ├── services/        # Business logic (auth, emails, notifications)
 │   │   ├── repositories/    # Database queries
-│   │   ├── scrapers/        # Job board scrapers (JustJoinIt, Pracuj.pl)
+│   │   ├── scrapers/        # Job board scrapers (JustJoinIt, Pracuj.pl, NoFluffJobs, TheProtocol, Bulldogjob, SolidJobs)
 │   │   └── core/            # Database config
 │   ├── migrations/          # Alembic migrations
 │   └── templates/emails/    # Jinja2 email templates
