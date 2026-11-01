@@ -9,6 +9,7 @@ from .JustJoinIt_scraper import JustJoinItScraper
 from .Pracujpl_scraper import PracujPlScraper
 from .NoFluffJobs_scraper import NoFluffJobsScraper
 from .TheProtocol_scraper import TheProtocolScraper
+from .Bulldogjob_scraper import BulldogjobScraper
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
@@ -53,6 +54,11 @@ SCRAPER_REGISTRY: list[ScraperConfig] = [
     ScraperConfig(
         scraper_class=TheProtocolScraper,
         default_query="https://theprotocol.it/filtry/wszystkie;p",
+        offers_count=15,
+    ),
+    ScraperConfig(
+        scraper_class=BulldogjobScraper,
+        default_query="https://bulldogjob.pl/companies/jobs",
         offers_count=15,
     ),
 ]
