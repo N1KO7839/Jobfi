@@ -20,6 +20,8 @@ async def getAllOffers(
     max_salary: int | None = None,
     working_mode: str | None = None,
     location: str | None = None,
+    source: str | None = None,
+    search: str | None = None,
     session: AsyncSession = Depends(get_session),
 ):
     try:
@@ -32,6 +34,8 @@ async def getAllOffers(
             max_salary=max_salary,
             working_mode=working_mode,
             location=location,
+            source=source,
+            search=search,
         )
         return offers
     except ValueError as e:

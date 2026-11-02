@@ -1,6 +1,6 @@
 from .base_repository import BaseRepository
 from uuid import UUID
-from sqlalchemy import select
+from sqlalchemy import select, or_
 from ..models.job import JobOffer, ordered_by_type
 
 
@@ -29,6 +29,8 @@ class JobOffersRepository(BaseRepository):
         max_salary: int | None = None,
         working_mode: str | None = None,
         location: str | None = None,
+        source: str | None = None,
+        search: str | None = None,
     ) -> list[JobOffer]:
         stmt = select(JobOffer)
 
@@ -40,6 +42,17 @@ class JobOffersRepository(BaseRepository):
             stmt = stmt.where(JobOffer.working_mode.ilike(f"%{working_mode}%"))
         if location:
             stmt = stmt.where(JobOffer.location.ilike(f"%{location}%"))
+        if source:
+            stmt = stmt.where(JobOffer.source.ilike(f"%{source}%"))
+        if search and search.strip():
+            search_pattern = f"%{search.strip()}%"
+            stmt = stmt.where(
+                or_(
+                    JobOffer.title.ilike(search_pattern),
+                    JobOffer.company.ilike(search_pattern),
+                    JobOffer.tech_stack.ilike(search_pattern),
+                )
+            )
 
         match ordered_by:
             case "payment_asc":
@@ -64,6 +77,8 @@ class JobOffersRepository(BaseRepository):
         max_salary: int | None = None,
         working_mode: str | None = None,
         location: str | None = None,
+        source: str | None = None,
+        search: str | None = None,
     ) -> int:
         from sqlalchemy import func
 
@@ -77,6 +92,17 @@ class JobOffersRepository(BaseRepository):
             stmt = stmt.where(JobOffer.working_mode.ilike(f"%{working_mode}%"))
         if location:
             stmt = stmt.where(JobOffer.location.ilike(f"%{location}%"))
+        if source:
+            stmt = stmt.where(JobOffer.source.ilike(f"%{source}%"))
+        if search and search.strip():
+            search_pattern = f"%{search.strip()}%"
+            stmt = stmt.where(
+                or_(
+                    JobOffer.title.ilike(search_pattern),
+                    JobOffer.company.ilike(search_pattern),
+                    JobOffer.tech_stack.ilike(search_pattern),
+                )
+            )
 
         result = await self.session.scalar(stmt)
         return result or 0

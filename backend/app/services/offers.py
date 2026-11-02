@@ -13,6 +13,8 @@ async def get_paginated_offers(
     max_salary: int | None = None,
     working_mode: str | None = None,
     location: str | None = None,
+    source: str | None = None,
+    search: str | None = None,
 ) -> dict:
     job_repo = JobOffersRepository(session)
     offset = (page_num - 1) * page_size
@@ -25,12 +27,16 @@ async def get_paginated_offers(
         max_salary=max_salary,
         working_mode=working_mode,
         location=location,
+        source=source,
+        search=search,
     )
     total_items = await job_repo.get_total_count(
         min_salary=min_salary,
         max_salary=max_salary,
         working_mode=working_mode,
         location=location,
+        source=source,
+        search=search,
     )
     total_pages = math.ceil(total_items / page_size) if total_items > 0 else 1
 
