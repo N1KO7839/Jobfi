@@ -31,14 +31,18 @@ class JustJoinItScraper(BaseScraper):
                 try:
                     href = await cards.nth(i).get_attribute("href", timeout=5000)
                     if href:
-                        links.append(href)
+                        links.append(
+                            href
+                            if href.startswith("http")
+                            else f"https://justjoin.it{href}"
+                        )
                 except Exception:
                     continue
 
             for link in links:
                 try:
                     await page.goto(
-                        f"https://justjoin.it{link}",
+                        link,
                         wait_until="domcontentloaded",
                         timeout=25000,
                     )
