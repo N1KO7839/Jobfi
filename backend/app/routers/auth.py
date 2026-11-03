@@ -52,6 +52,7 @@ async def register(
             send_verification_mail(user.email, v_link)
         except Exception as e:
             print(f"Failed to send verification email: {e}")
+            print(f"Verification link for {user.email}: {v_link}")
 
         return {"email": user.email, "id": user.id}
     except ValueError as e:
@@ -105,6 +106,7 @@ async def forgot_password(
         send_reset_password_mail(user.email, reset_link)
     except Exception as e:
         print(f"Failed to send reset email: {e}")
+        print(f"Reset link for {user.email}: {reset_link}")
 
     return {
         "message": "If that email is in our system, we have sent a reset link to it."
