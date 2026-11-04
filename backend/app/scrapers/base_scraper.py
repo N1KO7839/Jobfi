@@ -4,6 +4,17 @@ from decimal import Decimal
 from ..repositories.job_offers_repository import JobOffersRepository
 
 
+def _normalize_working_mode(raw) -> str:
+    value = str(raw or "").lower()
+    if "hybr" in value:
+        return "Hybrid"
+    if "remote" in value or "zdaln" in value:
+        return "Remote"
+    if any(k in value for k in ("office", "stacjonar", "on-site", "onsite")):
+        return "Office"
+    return "Unknown"
+
+
 def _parse_salary(salary_raw):
     if isinstance(salary_raw, (int, float, Decimal)):
         return Decimal(salary_raw), "PLN", "monthly"
@@ -116,7 +127,9 @@ class BaseScraper(ABC):
                     salary_period=period,
                     tech_stack=tech_stack,
                     location=job_offer_dict.get("location", "Remote"),
-                    working_mode=job_offer_dict.get("workingMode", "Remote")[:50],
+                    working_mode=_normalize_working_mode(
+                        job_offer_dict.get("workingMode")
+                    ),
                     source=source_name,
                     url=clean_url,
                 )
