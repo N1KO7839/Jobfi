@@ -1,7 +1,9 @@
-import React from "react";
-import { Card, CardHeader, CardBody } from "@heroui/card";
-import { MapPin, Briefcase, Clock } from "lucide-react";
+"use client";
+
+import React, { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
+import { MapPin, Briefcase, Clock, ArrowUpRight } from "lucide-react";
 
 import { JobOffer } from "@/types/offers";
 
@@ -9,53 +11,260 @@ interface OfferCardProps {
   offer: JobOffer;
 }
 
-export const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
+interface PlatformStyle {
+  name: string;
+  badgeClass: string;
+}
+
+function getPlatformStyle(offer: JobOffer): PlatformStyle {
+  const raw = (offer.source || "").toLowerCase();
+  const url = (offer.url || "").toLowerCase();
+
+  if (raw.includes("justjoin") || url.includes("justjoin.it")) {
+    return {
+      name: "JustJoin.it",
+      badgeClass:
+        "bg-rose-500/10 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300 border border-rose-500/25",
+    };
+  }
+  if (raw.includes("pracuj") || url.includes("pracuj.pl")) {
+    return {
+      name: "Pracuj.pl",
+      badgeClass:
+        "bg-sky-500/10 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300 border border-sky-500/25",
+    };
+  }
+  if (raw.includes("nofluff") || url.includes("nofluffjobs.com")) {
+    return {
+      name: "NoFluffJobs",
+      badgeClass:
+        "bg-emerald-500/10 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 border border-emerald-500/25",
+    };
+  }
+  if (raw.includes("protocol") || url.includes("theprotocol.it")) {
+    return {
+      name: "The Protocol",
+      badgeClass:
+        "bg-purple-500/10 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300 border border-purple-500/25",
+    };
+  }
+  if (raw.includes("bulldog") || url.includes("bulldogjob.pl")) {
+    return {
+      name: "Bulldogjob",
+      badgeClass:
+        "bg-amber-500/10 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300 border border-amber-500/25",
+    };
+  }
+  if (raw.includes("solid") || url.includes("solid.jobs")) {
+    return {
+      name: "Solid.Jobs",
+      badgeClass:
+        "bg-teal-500/10 text-teal-800 dark:bg-teal-500/15 dark:text-teal-300 border border-teal-500/25",
+    };
+  }
+
+  return {
+    name:
+      offer.source && offer.source !== "Unknown" ? offer.source : "Job Board",
+    badgeClass:
+      "bg-stone-100 text-stone-700 dark:bg-stone-800/90 dark:text-stone-300 border border-stone-200 dark:border-stone-700",
+  };
+}
+
+function companyToDomain(company: string): string {
   return (
-    <Card
-      as={Link}
-      className="w-full bg-slate-500/17.5 border border-white/5 hover:bg-slate-500/22.5 transition-colors shadow-none cursor-pointer rounded-2xl"
+    company
+      .toLowerCase()
+      .replace(
+        /\s+(sp\.?\s*z\.?\s*o\.?\s*o\.?|s\.a\.|inc\.?|ltd\.?|gmbh|llc\.?|ag)$/i,
+        "",
+      )
+      .trim()
+      .replace(/\s+/g, "")
+      .replace(/[^a-z0-9]/g, "") + ".com"
+  );
+}
+
+const AVATAR_COLORS = [
+  "bg-stone-200 text-stone-800 dark:bg-stone-800 dark:text-stone-200",
+  "bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200",
+  "bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200",
+  "bg-neutral-200 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200",
+  "bg-gray-200 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
+];
+
+function getAvatarColor(company: string): string {
+  const sum = company.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
+
+  return AVATAR_COLORS[sum % AVATAR_COLORS.length];
+}
+
+interface CompanyLogoProps {
+  company: string;
+}
+
+function CompanyLogo({ company }: CompanyLogoProps) {
+  const [failed, setFailed] = useState(false);
+  const domain = companyToDomain(company);
+  const initial = company.charAt(0).toUpperCase();
+  const avatarColor = getAvatarColor(company);
+
+  if (failed) {
+    return (
+      <div
+        className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-base shrink-0 border border-stone-300 dark:border-stone-700/80 shadow-2xs ${avatarColor}`}
+      >
+        {initial}
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-12 h-12 rounded-xl bg-white border border-stone-200 dark:border-stone-700/60 flex items-center justify-center shrink-0 overflow-hidden p-1.5 shadow-2xs">
+      <Image
+        unoptimized
+        alt={company}
+        className="object-contain max-h-full max-w-full"
+        height={36}
+        src={`https://logo.clearbit.com/${domain}`}
+        width={36}
+        onError={() => setFailed(true)}
+      />
+    </div>
+  );
+}
+
+export const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
+  const platform = getPlatformStyle(offer);
+
+  const techStackList = offer.tech_stack
+    ? offer.tech_stack
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter(Boolean)
+    : [];
+  const displayTags = techStackList.slice(0, 5);
+  const remainingCount = techStackList.length - displayTags.length;
+
+  const formattedSalary = (() => {
+    if (!offer.salary || offer.salary === "null" || offer.salary === "0") {
+      return null;
+    }
+    const num = Number(offer.salary);
+    const displayNum = !isNaN(num) ? num.toLocaleString("pl-PL") : offer.salary;
+    const period =
+      offer.salary_period === "hourly"
+        ? " / hr"
+        : offer.salary_period === "monthly"
+          ? " / mo"
+          : "";
+
+    return `${displayNum} ${offer.currency || "PLN"}${period}`;
+  })();
+
+  const dateLabel = (() => {
+    const d = new Date(offer.created_datetime);
+    const now = new Date();
+    const diffMs = now.getTime() - d.getTime();
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "1d ago";
+    if (diffDays < 7) return `${diffDays}d ago`;
+
+    return d.toLocaleDateString("pl-PL", { day: "numeric", month: "short" });
+  })();
+
+  return (
+    <Link
+      className="group relative flex flex-col justify-between h-full bg-content1 hover:bg-default-50/80 dark:bg-content1 dark:hover:bg-content2/80 border border-default-200 hover:border-stone-400 dark:hover:border-stone-500 rounded-2xl p-5 sm:p-6 transition-all duration-200 shadow-xs hover:shadow-md"
       href={offer.url}
       rel="noopener noreferrer"
       target="_blank"
     >
-      <CardHeader className="flex justify-between items-start pt-5 px-5 pb-2">
-        <div className="flex flex-col gap-1.5">
-          <p className="text-[17px] font-semibold text-default-900 leading-tight">
-            {offer.title}
-          </p>
-          <p className="text-[15px] text-default-500">{offer.company}</p>
+      <div className="flex flex-col gap-3.5">
+        <div className="flex items-start gap-3.5">
+          <CompanyLogo company={offer.company} />
+          <div className="flex-1 min-w-0 flex flex-col gap-1">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs sm:text-sm font-medium text-stone-600 dark:text-stone-300 truncate">
+                {offer.company}
+              </span>
+              <span
+                className={`text-[11px] font-semibold px-2 py-0.5 rounded-md shrink-0 ${platform.badgeClass}`}
+              >
+                {platform.name}
+              </span>
+            </div>
+            <h3 className="text-base sm:text-lg font-bold text-foreground group-hover:text-stone-900 dark:group-hover:text-white transition-colors leading-snug line-clamp-2">
+              {offer.title}
+            </h3>
+          </div>
         </div>
-      </CardHeader>
 
-      <CardBody className="px-5 pb-5 pt-2 flex flex-col gap-5">
-        {offer.salary && offer.salary !== "null" && (
-          <div>
-            <span className="inline-block px-4 py-1.5 rounded-full bg-[#2A1D45] text-[#D0B5FA] text-[15px] font-semibold">
-              {offer.salary} {offer.currency}
-              {offer.salary_period === "hourly"
-                ? " / hr"
-                : offer.salary_period === "monthly"
-                  ? " / mth"
-                  : ""}
+        <div className="flex items-center gap-3 text-xs sm:text-sm text-default-500 flex-wrap">
+          {offer.location && (
+            <span className="inline-flex items-center gap-1.5 font-medium text-stone-600 dark:text-stone-300">
+              <MapPin
+                className="text-stone-400 dark:text-stone-500 shrink-0"
+                size={13}
+              />
+              <span>{offer.location}</span>
             </span>
+          )}
+          {offer.working_mode && (
+            <span className="inline-flex items-center gap-1.5 text-stone-500 dark:text-stone-400 font-medium">
+              <Briefcase
+                className="text-stone-400 dark:text-stone-500 shrink-0"
+                size={13}
+              />
+              <span>{offer.working_mode}</span>
+            </span>
+          )}
+        </div>
+
+        {formattedSalary ? (
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-mono font-semibold text-xs sm:text-sm w-fit border border-emerald-500/25 shadow-2xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+            <span>{formattedSalary}</span>
+          </div>
+        ) : (
+          <div className="text-xs text-stone-400 dark:text-stone-500 font-medium italic">
+            Salary undisclosed
           </div>
         )}
 
-        <div className="flex flex-wrap gap-5 text-[14px] text-default-500 font-medium">
-          <div className="flex items-center gap-2">
-            <MapPin className="opacity-80" size={16} />
-            <span>{offer.location || "N/A"}</span>
+        {displayTags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {displayTags.map((tech) => (
+              <span
+                key={tech}
+                className="px-2.5 py-1 text-xs font-medium rounded-lg bg-stone-100 text-stone-800 dark:bg-stone-800/90 dark:text-stone-100 border border-stone-200/90 dark:border-stone-700/80 transition-colors shadow-2xs"
+              >
+                {tech}
+              </span>
+            ))}
+            {remainingCount > 0 && (
+              <span className="px-2 py-1 text-xs font-semibold text-stone-500 dark:text-stone-300 bg-stone-100/60 dark:bg-stone-800/50 rounded-lg border border-dashed border-stone-300 dark:border-stone-700">
+                +{remainingCount} more
+              </span>
+            )}
           </div>
-          <div className="flex items-center gap-2">
-            <Briefcase className="opacity-80" size={16} />
-            <span>{offer.working_mode || "N/A"}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Clock className="opacity-80" size={16} />
-            <span>{new Date(offer.created_datetime).toLocaleDateString()}</span>
-          </div>
+        )}
+      </div>
+
+      <div className="pt-3.5 mt-4 border-t border-default-100/90 flex items-center justify-between text-xs text-default-400">
+        <div className="flex items-center gap-1.5">
+          <Clock className="text-stone-400 dark:text-stone-500" size={12} />
+          <span className="font-medium text-stone-500 dark:text-stone-400">
+            {dateLabel}
+          </span>
         </div>
-      </CardBody>
-    </Card>
+        <span className="opacity-0 group-hover:opacity-100 transition-all duration-150 text-foreground dark:text-stone-100 font-semibold flex items-center gap-1 transform translate-x-1 group-hover:translate-x-0">
+          <span>Apply on {platform.name}</span>
+          <ArrowUpRight className="shrink-0" size={14} />
+        </span>
+      </div>
+    </Link>
   );
 };

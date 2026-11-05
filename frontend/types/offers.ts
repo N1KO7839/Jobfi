@@ -9,6 +9,7 @@ export interface JobOffer {
   id: string;
   salary_period: string;
   location: string;
+  source?: string;
   url: string;
   updated_datetime: string;
 }
