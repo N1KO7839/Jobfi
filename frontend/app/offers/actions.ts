@@ -13,7 +13,7 @@ export async function fetchLocations(): Promise<string[]> {
     const result = await api.url("/offers/locations").get().json<string[]>();
 
     return result;
-  } catch (err: any) {
+  } catch {
     return [];
   }
 }
@@ -26,6 +26,8 @@ export async function fetchOffers(
   max_salary?: string,
   working_mode?: string,
   location?: string,
+  source?: string,
+  search?: string,
 ): Promise<
   | { success: true; data: JobResponse }
   | { success: false; error: string; message: string; status?: number }
@@ -44,6 +46,8 @@ export async function fetchOffers(
     if (max_salary) queryParams.max_salary = max_salary;
     if (working_mode) queryParams.working_mode = working_mode;
     if (location) queryParams.location = location;
+    if (source) queryParams.source = source;
+    if (search) queryParams.search = search;
 
     const result = await api
       .url("/offers")
