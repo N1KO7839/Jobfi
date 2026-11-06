@@ -5,6 +5,31 @@ from .base_scraper import BaseScraper
 logger = logging.getLogger(__name__)
 
 
+TWO_WORD_CITY_ENDINGS = {
+    "góra",
+    "sącz",
+    "wola",
+    "targ",
+    "śląska",
+    "górnicza",
+    "mazowiecki",
+    "wielkopolski",
+    "trybunalski",
+}
+
+
+def _split_company_and_city(line: str) -> tuple[str, str]:
+    parts = line.split()
+    if len(parts) < 2:
+        return (parts[0] if parts else "Unknown"), "Remote"
+
+    city_words = 2 if parts[-1].lower() in TWO_WORD_CITY_ENDINGS else 1
+    if len(parts) <= city_words:
+        city_words = 1
+
+    return " ".join(parts[:-city_words]), " ".join(parts[-city_words:])
+
+
 class SolidJobsScraper(BaseScraper):
     name = "Solid.Jobs"
 
@@ -67,12 +92,7 @@ class SolidJobsScraper(BaseScraper):
                         company = "Unknown"
                         location = "Remote"
                         if len(lines) > 1:
-                            parts = lines[1].split()
-                            if len(parts) >= 2:
-                                company = parts[0]
-                                location = " ".join(parts[1:])
-                            elif len(parts) == 1:
-                                company = parts[0]
+                            company, location = _split_company_and_city(lines[1])
 
                         tech_stack = [
                             line.lstrip("#").strip()
