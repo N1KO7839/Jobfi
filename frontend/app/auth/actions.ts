@@ -20,6 +20,20 @@ async function setTokenCookies(accessToken: string, refreshToken: string) {
     path: "/",
     maxAge: 14 * 24 * 60 * 60,
   });
+
+  cookieStore.set("is_logged_in", "true", {
+    httpOnly: false,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 14 * 24 * 60 * 60,
+  });
+}
+
+export async function checkAuthStatus(): Promise<boolean> {
+  const cookieStore = await cookies();
+
+  return cookieStore.has("access_token") || cookieStore.has("refresh_token");
 }
 
 export async function submitRegisterForm(formData: FormData) {
@@ -136,6 +150,7 @@ export async function Logout() {
 
     cookieStore.delete("access_token");
     cookieStore.delete("refresh_token");
+    cookieStore.delete("is_logged_in");
 
     return { success: true };
   } catch (err: any) {
