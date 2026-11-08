@@ -52,3 +52,8 @@ async def get_paginated_offers(
 async def get_locations(session: AsyncSession) -> list[str]:
     job_repo = JobOffersRepository(session)
     return await job_repo.get_locations()
+
+
+async def get_source_counts(session: AsyncSession) -> dict[str, int]:
+    job_repo = JobOffersRepository(session)
+    return await job_repo.get_source_counts()

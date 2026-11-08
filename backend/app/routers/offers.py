@@ -1,7 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_session
-from app.services.offers import get_paginated_offers, get_locations
+from app.services.offers import (
+    get_paginated_offers,
+    get_locations,
+    get_source_counts,
+)
 
 router = APIRouter()
 
@@ -9,6 +13,11 @@ router = APIRouter()
 @router.get("/locations")
 async def get_all_locations(session: AsyncSession = Depends(get_session)):
     return await get_locations(session)
+
+
+@router.get("/sources")
+async def get_sources(session: AsyncSession = Depends(get_session)):
+    return await get_source_counts(session)
 
 
 @router.get("")
