@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Mail } from "lucide-react";
 import { addToast } from "@heroui/toast";
 import { Select, SelectItem } from "@heroui/select";
 import { Input } from "@heroui/input";
@@ -84,15 +83,14 @@ export default function NotificationPreferences() {
   if (fetching) return null;
 
   return (
-    <div className="flex flex-col bg-slate-500/20 rounded-xl p-10 gap-10">
-      <div className="flex flex-row items-center gap-4">
-        <Mail className="p-2 bg-purple-400/50 rounded-2xl" size={48} />
-        <div className="flex flex-col">
-          <h2 className="text-2xl font-semibold">Notification Preferences</h2>
-          <h4 className="text-md text-white/40">
-            Control how often you receive job matching emails
-          </h4>
-        </div>
+    <div className="flex flex-col bg-content1 border border-default-200/80 dark:border-default-800/80 shadow-xs rounded-2xl p-6 sm:p-8 gap-8">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-xl font-bold text-foreground">
+          Notification Preferences
+        </h2>
+        <p className="text-sm text-default-500">
+          Control how often you receive job matching emails
+        </p>
       </div>
       <form className="flex flex-col gap-8" onSubmit={handleSubmit}>
         <div className="flex flex-col gap-1 w-full max-w-xs">
@@ -165,7 +163,7 @@ export default function NotificationPreferences() {
         </div>
 
         <button
-          className="w-fit self-start px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50"
+          className="w-fit self-start px-6 py-2.5 bg-foreground text-background hover:opacity-90 text-sm font-semibold rounded-xl transition-opacity disabled:opacity-50 cursor-pointer shadow-xs"
           disabled={loading}
           type="submit"
         >

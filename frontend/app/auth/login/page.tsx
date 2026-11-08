@@ -1,46 +1,64 @@
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 import { cookies } from "next/headers";
 
 import AuthForm from "@/components/AuthForm";
 
-const page = async () => {
-  const LOGO_SIZE = 36;
+const LoginPage = async () => {
   const cookieStore = await cookies();
   const isLoggedIn =
     cookieStore.has("access_token") || cookieStore.has("refresh_token");
 
   return (
-    <div className="flex flex-col justify-center items-center gap-6 mt-20">
-      <div className="flex flex-row justify-center items-center gap-2">
-        <Image
-          alt="logo"
-          height={LOGO_SIZE}
-          src="/logo_purple.svg"
-          width={LOGO_SIZE}
-        />
-        <h1 className="text-2xl font-semibold">Jobfi</h1>
-      </div>
-      <div className="flex flex-col justify-center items-center bg-purple-400/15 dark:bg-slate-800/20 w-11/12 sm:w-[500px] py-16 px-4 sm:px-8 rounded-2xl gap-2 text-center">
-        <h2 className="text-xl sm:text-2xl font-bold">
-          Log in to your account
-        </h2>
-        <h3 className="text-default-500 text-sm sm:text-md font-medium">
-          Welcome back! Please enter your details.
-        </h3>
-        <AuthForm authType="login" isLoggedIn={isLoggedIn} />
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-1 sm:gap-2 text-sm sm:text-base">
-          <h3>Don&apos;t have an account yet?</h3>
-          <Link
-            className="text-purple-500 font-semibold"
-            href={"/auth/register"}
-          >
-            Register
-          </Link>
+    <div className="min-h-[calc(100vh-200px)] flex flex-col justify-center items-center py-12 px-4">
+      <div className="w-full max-w-sm flex flex-col items-center">
+        <Link className="flex items-center gap-2.5 mb-6 group" href="/">
+          <div className="w-10 h-10 rounded-2xl bg-content2 border border-default-200/80 flex items-center justify-center p-2 shadow-xs">
+            <Image
+              alt="Jobfi Logo"
+              className="dark:hidden object-contain"
+              height={24}
+              src="/logo_black.svg"
+              width={24}
+            />
+            <Image
+              alt="Jobfi Logo"
+              className="hidden dark:block object-contain"
+              height={24}
+              src="/logo.svg"
+              width={24}
+            />
+          </div>
+          <span className="font-bold text-2xl tracking-tight text-foreground">
+            Jobfi
+          </span>
+        </Link>
+
+        <div className="w-full bg-content1 border border-default-200 shadow-sm rounded-2xl p-6 sm:p-8 flex flex-col">
+          <div className="mb-6 text-center">
+            <h1 className="text-xl font-bold tracking-tight text-foreground">
+              Sign in to your account
+            </h1>
+            <p className="text-default-500 text-xs mt-1">
+              Access your saved filters and email alert preferences
+            </p>
+          </div>
+
+          <AuthForm authType="login" isLoggedIn={isLoggedIn} />
+
+          <div className="mt-5 pt-5 border-t border-default-100 text-center text-xs text-default-500">
+            <span>Don&apos;t have an account? </span>
+            <Link
+              className="text-foreground font-semibold hover:underline"
+              href="/auth/register"
+            >
+              Sign up
+            </Link>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default page;
+export default LoginPage;

@@ -1,6 +1,5 @@
 "use client";
 import { Input } from "@heroui/input";
-import { Lock } from "lucide-react";
 import { useState } from "react";
 import { addToast } from "@heroui/toast";
 
@@ -46,15 +45,12 @@ const ChangePassword = () => {
   };
 
   return (
-    <div className="flex flex-col bg-slate-500/20 rounded-xl p-10 gap-10">
-      <div className="flex flex-row items-center gap-4">
-        <Lock className="p-2 bg-purple-400/50 rounded-2xl" size={48} />
-        <div className="flex flex-col">
-          <h2 className="text-2xl font-semibold">Change password</h2>
-          <h4 className="text-md text-white/40">
-            Use at least 8 characters. Mix letters, numbers and symbols
-          </h4>
-        </div>
+    <div className="flex flex-col bg-content1 border border-default-200/80 dark:border-default-800/80 shadow-xs rounded-2xl p-6 sm:p-8 gap-8">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-xl font-bold text-foreground">Change password</h2>
+        <p className="text-sm text-default-500">
+          Use at least 8 characters. Mix letters, numbers, and symbols.
+        </p>
       </div>
       <form action={handleSubmit} className="flex flex-col gap-8">
         <div className="flex flex-col gap-1">
@@ -105,7 +101,7 @@ const ChangePassword = () => {
           </div>
         </div>
         <button
-          className="w-fit self-start px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50"
+          className="w-fit self-start px-6 py-2.5 bg-foreground text-background hover:opacity-90 text-sm font-semibold rounded-xl transition-opacity disabled:opacity-50 cursor-pointer shadow-xs"
           disabled={loading}
           type="submit"
         >

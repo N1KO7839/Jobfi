@@ -87,7 +87,7 @@ const VerifyPage = () => {
         />
         <h1 className="text-2xl font-semibold">Jobfi</h1>
       </div>
-      <div className="flex flex-col justify-center items-center bg-purple-400/15 dark:bg-slate-800/20 w-11/12 sm:w-[500px] py-16 px-4 sm:px-8 rounded-2xl gap-2 text-center">
+      <div className="flex flex-col justify-center items-center bg-content1 border border-default-200 shadow-sm w-11/12 sm:w-[500px] py-14 px-6 sm:px-10 rounded-2xl gap-2 text-center">
         <h2 className="text-xl sm:text-2xl font-bold mb-4">
           Email Verification
         </h2>
