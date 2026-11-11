@@ -1,7 +1,4 @@
-"use client";
-
-import React, { useState } from "react";
-import Image from "next/image";
+import React from "react";
 import Link from "next/link";
 import { MapPin, Briefcase, Clock, ArrowUpRight } from "lucide-react";
 
@@ -71,20 +68,6 @@ function getPlatformStyle(offer: JobOffer): PlatformStyle {
   };
 }
 
-function companyToDomain(company: string): string {
-  return (
-    company
-      .toLowerCase()
-      .replace(
-        /\s+(sp\.?\s*z\.?\s*o\.?\s*o\.?|s\.a\.|inc\.?|ltd\.?|gmbh|llc\.?|ag)$/i,
-        "",
-      )
-      .trim()
-      .replace(/\s+/g, "")
-      .replace(/[^a-z0-9]/g, "") + ".com"
-  );
-}
-
 const AVATAR_COLORS = [
   "bg-stone-200 text-stone-800 dark:bg-stone-800 dark:text-stone-200",
   "bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200",
@@ -99,37 +82,24 @@ function getAvatarColor(company: string): string {
   return AVATAR_COLORS[sum % AVATAR_COLORS.length];
 }
 
-interface CompanyLogoProps {
-  company: string;
+function getInitials(company: string): string {
+  const words = company
+    .replace(/\b(sp\.?\s*z\.?\s*o\.?\s*o\.?|s\.a\.)/gi, "")
+    .split(/[\s\-.]+/)
+    .filter(Boolean);
+
+  if (words.length === 0) return "?";
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+
+  return (words[0][0] + words[1][0]).toUpperCase();
 }
 
-function CompanyLogo({ company }: CompanyLogoProps) {
-  const [failed, setFailed] = useState(false);
-  const domain = companyToDomain(company);
-  const initial = company.charAt(0).toUpperCase();
-  const avatarColor = getAvatarColor(company);
-
-  if (failed) {
-    return (
-      <div
-        className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-base shrink-0 border border-stone-300 dark:border-stone-700/80 shadow-2xs ${avatarColor}`}
-      >
-        {initial}
-      </div>
-    );
-  }
-
+function CompanyAvatar({ company }: { company: string }) {
   return (
-    <div className="w-12 h-12 rounded-xl bg-white border border-stone-200 dark:border-stone-700/60 flex items-center justify-center shrink-0 overflow-hidden p-1.5 shadow-2xs">
-      <Image
-        unoptimized
-        alt={company}
-        className="object-contain max-h-full max-w-full"
-        height={36}
-        src={`https://logo.clearbit.com/${domain}`}
-        width={36}
-        onError={() => setFailed(true)}
-      />
+    <div
+      className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-sm tracking-tight shrink-0 border border-stone-300 dark:border-stone-700/80 ${getAvatarColor(company)}`}
+    >
+      {getInitials(company)}
     </div>
   );
 }
@@ -153,11 +123,11 @@ export const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
     const num = Number(offer.salary);
     const displayNum = !isNaN(num) ? num.toLocaleString("pl-PL") : offer.salary;
     const period =
-      offer.salary_period === "hourly"
-        ? " / hr"
-        : offer.salary_period === "monthly"
-          ? " / mo"
-          : "";
+      {
+        hourly: " / hr",
+        daily: " / day",
+        monthly: " / mo",
+      }[offer.salary_period] ?? "";
 
     return `${displayNum} ${offer.currency || "PLN"}${period}`;
   })();
@@ -184,7 +154,7 @@ export const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
     >
       <div className="flex flex-col gap-3.5">
         <div className="flex items-start gap-3.5">
-          <CompanyLogo company={offer.company} />
+          <CompanyAvatar company={offer.company} />
           <div className="flex-1 min-w-0 flex flex-col gap-1">
             <div className="flex items-center justify-between gap-2">
               <span className="text-xs sm:text-sm font-medium text-stone-600 dark:text-stone-300 truncate">
@@ -203,7 +173,7 @@ export const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
         </div>
 
         <div className="flex items-center gap-3 text-xs sm:text-sm text-default-500 flex-wrap">
-          {offer.location && (
+          {offer.location && offer.location !== offer.working_mode && (
             <span className="inline-flex items-center gap-1.5 font-medium text-stone-600 dark:text-stone-300">
               <MapPin
                 className="text-stone-400 dark:text-stone-500 shrink-0"
@@ -212,7 +182,7 @@ export const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
               <span>{offer.location}</span>
             </span>
           )}
-          {offer.working_mode && (
+          {offer.working_mode && offer.working_mode !== "Unknown" && (
             <span className="inline-flex items-center gap-1.5 text-stone-500 dark:text-stone-400 font-medium">
               <Briefcase
                 className="text-stone-400 dark:text-stone-500 shrink-0"

@@ -1,12 +1,12 @@
 import { cookies } from "next/headers";
 import React, { Suspense } from "react";
-import { Spinner } from "@heroui/spinner";
 import { Button } from "@heroui/button";
 import Link from "next/link";
 
 import PaginatedOffers from "./PaginatedOffers";
 import OffersFilter from "./OffersFilter";
-import { fetchLocations } from "./actions";
+import OffersSkeleton from "./OffersSkeleton";
+import { fetchLocations, fetchSourceCounts } from "./actions";
 
 import { sort_type } from "@/types/offers";
 
@@ -14,82 +14,73 @@ interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
+const PAGE_SIZE = 12;
+
 const page = async ({ searchParams }: PageProps) => {
   const cookieStore = await cookies();
   const isLoggedIn =
     cookieStore.has("access_token") || cookieStore.has("refresh_token");
 
-  const resolvedSearchParams = await searchParams;
-  const pageParam = Number(resolvedSearchParams?.page) || 1;
-  const sizeParam = Number(resolvedSearchParams?.size) || 10;
-  const sortTypeParam =
-    (resolvedSearchParams?.sort_type as sort_type) || "date_desc";
+  const params = await searchParams;
+  const getParam = (key: string) => params?.[key] as string | undefined;
 
-  const minSalaryParam = resolvedSearchParams?.min_salary as string | undefined;
-  const maxSalaryParam = resolvedSearchParams?.max_salary as string | undefined;
-  const workingModeParam = resolvedSearchParams?.working_mode as
-    | string
-    | undefined;
-  const locationParam = resolvedSearchParams?.location as string | undefined;
-  const sourceParam = resolvedSearchParams?.source as string | undefined;
-  const searchParam = resolvedSearchParams?.search as string | undefined;
+  const pageParam = Number(getParam("page")) || 1;
+  const sortTypeParam = (getParam("sort_type") as sort_type) || "date_desc";
 
-  const locations = await fetchLocations();
+  const [locations, sourceCounts] = await Promise.all([
+    fetchLocations(),
+    fetchSourceCounts(),
+  ]);
+
+  const filters = {
+    min_salary: getParam("min_salary"),
+    max_salary: getParam("max_salary"),
+    working_mode: getParam("working_mode"),
+    location: getParam("location"),
+    source: getParam("source"),
+    search: getParam("search"),
+  };
 
   return (
     <div className="flex flex-col gap-6 pb-16">
-      <div className="flex flex-col gap-1.5 pt-2">
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
-          Browse Offers
-        </h1>
-        <p className="text-default-500 text-sm">
-          Search and compare developer roles with transparent salary ranges.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pt-2">
+        <div className="flex flex-col gap-1.5">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
+            Browse Offers
+          </h1>
+          <p className="text-default-500 text-sm">
+            Developer roles from six Polish job boards, refreshed every hour.
+          </p>
+        </div>
+
+        {!isLoggedIn && (
+          <div className="flex items-center gap-3 text-xs text-default-500">
+            <span className="hidden md:inline">
+              Get new matches by email every morning
+            </span>
+            <Button
+              as={Link}
+              className="font-semibold shrink-0 bg-foreground text-background hover:opacity-90 text-xs px-4 h-8 rounded-lg"
+              href="/auth/register"
+              size="sm"
+            >
+              Create alert
+            </Button>
+          </div>
+        )}
       </div>
 
-      {!isLoggedIn && (
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-content1 border border-default-200 text-sm shadow-2xs">
-          <div className="flex flex-col gap-0.5">
-            <span className="font-semibold text-foreground">
-              Browsing as guest
-            </span>
-            <span className="text-default-500 text-xs">
-              Create an account to save filters and receive daily morning email
-              notifications with newly published listings.
-            </span>
-          </div>
-          <Button
-            as={Link}
-            className="font-semibold shrink-0 bg-foreground text-background hover:opacity-90 text-xs px-4 h-8 rounded-lg shadow-xs transition-opacity"
-            href="/auth/register"
-            size="sm"
-            variant="solid"
-          >
-            Create Alert Account
-          </Button>
-        </div>
-      )}
-
-      <OffersFilter locations={locations} />
+      <OffersFilter locations={locations} sourceCounts={sourceCounts} />
 
       <Suspense
-        fallback={
-          <div className="flex flex-col items-center justify-center py-24 gap-3">
-            <Spinner color="default" size="md" />
-            <p className="text-default-400 text-xs">Loading offers...</p>
-          </div>
-        }
+        key={JSON.stringify({ ...filters, pageParam, sortTypeParam })}
+        fallback={<OffersSkeleton count={PAGE_SIZE} />}
       >
         <PaginatedOffers
-          location={locationParam}
-          max_salary={maxSalaryParam}
-          min_salary={minSalaryParam}
+          {...filters}
           page={pageParam}
-          search={searchParam}
-          size={sizeParam}
+          size={PAGE_SIZE}
           sort_type={sortTypeParam}
-          source={sourceParam}
-          working_mode={workingModeParam}
         />
       </Suspense>
     </div>

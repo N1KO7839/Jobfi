@@ -3,129 +3,144 @@
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Input } from "@heroui/input";
-import { Select, SelectItem } from "@heroui/select";
 import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
 import { Button } from "@heroui/button";
 import { Search, X, SlidersHorizontal } from "lucide-react";
 
 interface OffersFilterProps {
   locations: string[];
+  sourceCounts: Record<string, number>;
 }
 
-const WORKING_MODES = ["Remote", "Hybrid", "Office", "Unknown"];
+const WORKING_MODES = ["Remote", "Hybrid", "Office"];
 
 const PLATFORMS = [
-  { value: "", label: "All Platforms" },
+  { value: "JustJoinIt", label: "JustJoin.it" },
   { value: "NoFluffJobs", label: "NoFluffJobs" },
-  { value: "JustJoinIT", label: "JustJoin.it" },
   { value: "Pracuj.pl", label: "Pracuj.pl" },
   { value: "The Protocol", label: "The Protocol" },
   { value: "Bulldogjob", label: "Bulldogjob" },
   { value: "Solid.Jobs", label: "Solid.Jobs" },
 ];
 
-const SORT_OPTIONS = [
-  { value: "date_desc", label: "Date (Newest)" },
-  { value: "date_asc", label: "Date (Oldest)" },
-  { value: "payment_desc", label: "Salary (High to Low)" },
-  { value: "payment_asc", label: "Salary (Low to High)" },
-];
+interface FilterChipProps {
+  label: string;
+  onRemove: () => void;
+}
 
-export default function OffersFilter({ locations }: OffersFilterProps) {
+function FilterChip({ label, onRemove }: FilterChipProps) {
+  return (
+    <span className="inline-flex items-center gap-1.5 pl-2.5 pr-1 py-1 rounded-md bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-100 border border-stone-200 dark:border-stone-700 font-medium">
+      {label}
+      <button
+        aria-label={`Remove ${label}`}
+        className="p-0.5 rounded text-stone-400 hover:text-stone-700 dark:hover:text-stone-100 transition-colors cursor-pointer"
+        type="button"
+        onClick={onRemove}
+      >
+        <X size={12} />
+      </button>
+    </span>
+  );
+}
+
+const formatPln = (value: string) =>
+  `${Number(value).toLocaleString("pl-PL")} PLN`;
+
+export default function OffersFilter({
+  locations,
+  sourceCounts,
+}: OffersFilterProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [search, setSearch] = useState(searchParams.get("search") || "");
-  const [minSalary, setMinSalary] = useState(
-    searchParams.get("min_salary") || "",
-  );
-  const [maxSalary, setMaxSalary] = useState(
-    searchParams.get("max_salary") || "",
-  );
-  const [workingMode, setWorkingMode] = useState(
-    searchParams.get("working_mode") || "",
-  );
-  const [location, setLocation] = useState(searchParams.get("location") || "");
-  const [source, setSource] = useState(searchParams.get("source") || "");
-  const [sortType, setSortType] = useState(
-    searchParams.get("sort_type") || "date_desc",
-  );
+  const current = (key: string) => searchParams.get(key) || "";
+
+  const [search, setSearch] = useState(current("search"));
+  const [location, setLocation] = useState(current("location"));
+  const [minSalary, setMinSalary] = useState(current("min_salary"));
+  const [maxSalary, setMaxSalary] = useState(current("max_salary"));
   const [showAdvanced, setShowAdvanced] = useState(
-    Boolean(minSalary || maxSalary || workingMode || location),
+    Boolean(
+      current("location") ||
+        current("min_salary") ||
+        current("max_salary") ||
+        current("working_mode"),
+    ),
   );
 
   useEffect(() => {
-    setSearch(searchParams.get("search") || "");
-    setMinSalary(searchParams.get("min_salary") || "");
-    setMaxSalary(searchParams.get("max_salary") || "");
-    setWorkingMode(searchParams.get("working_mode") || "");
-    setLocation(searchParams.get("location") || "");
-    setSource(searchParams.get("source") || "");
-    setSortType(searchParams.get("sort_type") || "date_desc");
+    setSearch(current("search"));
+    setLocation(current("location"));
+    setMinSalary(current("min_salary"));
+    setMaxSalary(current("max_salary"));
   }, [searchParams]);
 
-  const updateUrlWithParams = (newParams: {
-    [key: string]: string | undefined;
-  }) => {
+  const source = current("source");
+  const workingMode = current("working_mode");
+  const totalCount = Object.values(sourceCounts).reduce((a, b) => a + b, 0);
+
+  const updateParams = (changes: Record<string, string>) => {
     const params = new URLSearchParams(searchParams.toString());
 
-    params.set("page", "1");
-
-    Object.entries(newParams).forEach(([key, val]) => {
-      if (val && val.trim() !== "") {
-        params.set(key, val.trim());
-      } else {
-        params.delete(key);
-      }
+    params.delete("page");
+    Object.entries(changes).forEach(([key, val]) => {
+      if (val.trim()) params.set(key, val.trim());
+      else params.delete(key);
     });
 
-    router.push(`${pathname}?${params.toString()}`);
+    const query = params.toString();
+
+    router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
   };
 
-  const handlePlatformClick = (platformVal: string) => {
-    setSource(platformVal);
-    updateUrlWithParams({
+  const applyInputs = () =>
+    updateParams({
       search,
-      source: platformVal,
+      location,
       min_salary: minSalary,
       max_salary: maxSalary,
-      working_mode: workingMode,
-      location,
-      sort_type: sortType,
     });
-  };
-
-  const applyFilters = () => {
-    updateUrlWithParams({
-      search,
-      source,
-      min_salary: minSalary,
-      max_salary: maxSalary,
-      working_mode: workingMode,
-      location,
-      sort_type: sortType,
-    });
-  };
 
   const clearFilters = () => {
-    setSearch("");
-    setMinSalary("");
-    setMaxSalary("");
-    setWorkingMode("");
-    setLocation("");
-    setSource("");
-    setSortType("date_desc");
+    const sort = current("sort_type");
 
-    const params = new URLSearchParams();
-
-    params.set("page", "1");
-    router.push(`${pathname}?${params.toString()}`);
+    router.push(sort ? `${pathname}?sort_type=${sort}` : pathname, {
+      scroll: false,
+    });
   };
 
-  const hasActiveFilters = Boolean(
-    search || minSalary || maxSalary || workingMode || location || source,
-  );
+  const onEnter = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") applyInputs();
+  };
+
+  const activeChips = [
+    { key: "search", label: `"${current("search")}"` },
+    { key: "source", label: current("source") },
+    { key: "location", label: current("location") },
+    { key: "working_mode", label: current("working_mode") },
+    {
+      key: "min_salary",
+      label:
+        current("min_salary") && `From ${formatPln(current("min_salary"))}`,
+    },
+    {
+      key: "max_salary",
+      label:
+        current("max_salary") && `Up to ${formatPln(current("max_salary"))}`,
+    },
+  ].filter((chip) => current(chip.key));
+
+  const tabClass = (isActive: boolean) =>
+    `inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-colors shrink-0 cursor-pointer font-medium ${
+      isActive
+        ? "bg-foreground text-background font-semibold"
+        : "hover:bg-default-100 text-default-600 dark:text-default-400 hover:text-foreground"
+    }`;
+
+  const countClass = (isActive: boolean) =>
+    `tabular-nums ${isActive ? "opacity-70" : "text-default-400"}`;
 
   return (
     <div className="flex flex-col gap-4 p-4 sm:p-5 rounded-2xl bg-content1 border border-default-200 shadow-sm">
@@ -134,20 +149,19 @@ export default function OffersFilter({ locations }: OffersFilterProps) {
           <Search className="text-default-400 shrink-0" size={18} />
           <input
             className="w-full min-w-0 bg-transparent outline-none text-sm text-foreground placeholder:text-default-400"
-            placeholder="Search by job title, technology, or company (e.g. Python, React, TeamQuest)..."
+            placeholder="Job title, technology or company"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") applyFilters();
-            }}
+            onKeyDown={onEnter}
           />
           {search && (
             <button
+              aria-label="Clear search"
               className="text-default-400 hover:text-foreground p-1 shrink-0 cursor-pointer"
               type="button"
               onClick={() => {
                 setSearch("");
-                updateUrlWithParams({ search: "" });
+                updateParams({ search: "" });
               }}
             >
               <X size={15} />
@@ -157,7 +171,11 @@ export default function OffersFilter({ locations }: OffersFilterProps) {
 
         <div className="flex items-center gap-2 shrink-0">
           <Button
-            className="text-xs font-medium text-default-600 dark:text-default-400 hover:text-foreground h-9 px-3 rounded-lg"
+            className={`text-xs font-medium h-9 px-3 rounded-lg ${
+              showAdvanced
+                ? "text-foreground bg-default-200/60"
+                : "text-default-600 dark:text-default-400 hover:text-foreground"
+            }`}
             startContent={<SlidersHorizontal size={14} />}
             variant="light"
             onPress={() => setShowAdvanced(!showAdvanced)}
@@ -166,10 +184,9 @@ export default function OffersFilter({ locations }: OffersFilterProps) {
           </Button>
 
           <Button
-            className="bg-foreground text-background font-semibold text-xs h-9 px-5 rounded-lg shrink-0 hover:opacity-90 transition-opacity"
+            className="flex-1 sm:flex-none bg-foreground text-background font-semibold text-xs h-9 px-5 rounded-lg hover:opacity-90 transition-opacity"
             size="sm"
-            variant="solid"
-            onPress={applyFilters}
+            onPress={applyInputs}
           >
             Search
           </Button>
@@ -177,182 +194,114 @@ export default function OffersFilter({ locations }: OffersFilterProps) {
       </div>
 
       <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none border-b border-default-100">
+        <button
+          className={tabClass(!source)}
+          type="button"
+          onClick={() => updateParams({ source: "" })}
+        >
+          All platforms
+          {totalCount > 0 && (
+            <span className={countClass(!source)}>{totalCount}</span>
+          )}
+        </button>
         {PLATFORMS.map((p) => {
           const isActive = source === p.value;
+          const count = sourceCounts[p.value] ?? 0;
 
           return (
             <button
               key={p.value}
-              className={`px-3 py-1.5 rounded-lg text-xs transition-colors shrink-0 cursor-pointer font-medium ${
-                isActive
-                  ? "bg-foreground text-background font-semibold shadow-xs"
-                  : "hover:bg-default-100 text-default-600 dark:text-default-400 hover:text-foreground"
-              }`}
+              className={`${tabClass(isActive)} ${count === 0 && !isActive ? "opacity-50" : ""}`}
               type="button"
-              onClick={() => handlePlatformClick(p.value)}
+              onClick={() => updateParams({ source: p.value })}
             >
               {p.label}
+              <span className={countClass(isActive)}>{count}</span>
             </button>
           );
         })}
       </div>
 
       {showAdvanced && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_auto] gap-3 items-center">
           <Autocomplete
             allowsCustomValue
             className="w-full"
-            defaultItems={locations.map((city) => ({
-              value: city,
-              label: city,
-            }))}
+            defaultItems={locations.map((city) => ({ value: city }))}
             inputValue={location}
-            label="Location"
-            placeholder="e.g. Warszawa"
+            label="City"
+            placeholder="Any city"
             selectedKey={locations.includes(location) ? location : null}
             size="sm"
             variant="bordered"
-            onInputChange={(val) => setLocation(val)}
+            onInputChange={setLocation}
+            onKeyDown={onEnter}
             onSelectionChange={(key) => {
-              if (key) setLocation(key as string);
+              if (key) updateParams({ location: key as string });
             }}
           >
             {(item) => (
-              <AutocompleteItem key={item.value}>{item.label}</AutocompleteItem>
+              <AutocompleteItem key={item.value}>{item.value}</AutocompleteItem>
             )}
           </Autocomplete>
 
           <Input
             className="w-full"
-            label="Min Salary (PLN)"
-            placeholder="e.g. 15000"
+            endContent={<span className="text-xs text-default-400">PLN</span>}
+            label="Min monthly salary"
             size="sm"
             type="number"
             value={minSalary}
             variant="bordered"
+            onKeyDown={onEnter}
             onValueChange={setMinSalary}
           />
 
           <Input
             className="w-full"
-            label="Max Salary (PLN)"
-            placeholder="e.g. 30000"
+            endContent={<span className="text-xs text-default-400">PLN</span>}
+            label="Max monthly salary"
             size="sm"
             type="number"
             value={maxSalary}
             variant="bordered"
+            onKeyDown={onEnter}
             onValueChange={setMaxSalary}
           />
 
-          <Select
-            className="w-full"
-            label="Work Mode"
-            placeholder="All modes"
-            selectedKeys={workingMode ? [workingMode] : []}
-            size="sm"
-            variant="bordered"
-            onChange={(e) => setWorkingMode(e.target.value)}
-          >
-            {WORKING_MODES.map((mode) => (
-              <SelectItem key={mode}>{mode}</SelectItem>
-            ))}
-          </Select>
+          <div className="flex items-center gap-1 p-1 rounded-xl border border-default-200 h-12">
+            {["", ...WORKING_MODES].map((mode) => {
+              const isActive = workingMode === mode;
 
-          <Select
-            className="w-full"
-            label="Sort By"
-            placeholder="Sort offers"
-            selectedKeys={[sortType]}
-            size="sm"
-            variant="bordered"
-            onChange={(e) => setSortType(e.target.value)}
-          >
-            {SORT_OPTIONS.map((option) => (
-              <SelectItem key={option.value}>{option.label}</SelectItem>
-            ))}
-          </Select>
+              return (
+                <button
+                  key={mode || "any"}
+                  className={`h-full px-3 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                    isActive
+                      ? "bg-foreground text-background font-semibold"
+                      : "text-default-600 dark:text-default-400 hover:bg-default-100 hover:text-foreground"
+                  }`}
+                  type="button"
+                  onClick={() => updateParams({ working_mode: mode })}
+                >
+                  {mode || "Any"}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
-      {hasActiveFilters && (
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs">
+      {activeChips.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-default-400 font-medium">Active:</span>
-            {search && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-100 border border-stone-200 dark:border-stone-700 font-medium shadow-2xs">
-                Keyword: &ldquo;{search}&rdquo;
-                <button
-                  className="p-0.5 rounded text-stone-400 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-100 transition-colors cursor-pointer"
-                  type="button"
-                  onClick={() => {
-                    setSearch("");
-                    updateUrlWithParams({ search: "" });
-                  }}
-                >
-                  <X size={12} />
-                </button>
-              </span>
-            )}
-            {source && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-100 border border-stone-200 dark:border-stone-700 font-medium shadow-2xs">
-                Platform: {source}
-                <button
-                  className="p-0.5 rounded text-stone-400 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-100 transition-colors cursor-pointer"
-                  type="button"
-                  onClick={() => {
-                    setSource("");
-                    updateUrlWithParams({ source: "" });
-                  }}
-                >
-                  <X size={12} />
-                </button>
-              </span>
-            )}
-            {location && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-100 border border-stone-200 dark:border-stone-700 font-medium shadow-2xs">
-                City: {location}
-                <button
-                  className="p-0.5 rounded text-stone-400 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-100 transition-colors cursor-pointer"
-                  type="button"
-                  onClick={() => {
-                    setLocation("");
-                    updateUrlWithParams({ location: "" });
-                  }}
-                >
-                  <X size={12} />
-                </button>
-              </span>
-            )}
-            {workingMode && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-100 border border-stone-200 dark:border-stone-700 font-medium shadow-2xs">
-                Mode: {workingMode}
-                <button
-                  className="p-0.5 rounded text-stone-400 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-100 transition-colors cursor-pointer"
-                  type="button"
-                  onClick={() => {
-                    setWorkingMode("");
-                    updateUrlWithParams({ working_mode: "" });
-                  }}
-                >
-                  <X size={12} />
-                </button>
-              </span>
-            )}
-            {minSalary && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-100 border border-stone-200 dark:border-stone-700 font-medium shadow-2xs">
-                Min: {minSalary} PLN
-                <button
-                  className="p-0.5 rounded text-stone-400 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-100 transition-colors cursor-pointer"
-                  type="button"
-                  onClick={() => {
-                    setMinSalary("");
-                    updateUrlWithParams({ min_salary: "" });
-                  }}
-                >
-                  <X size={12} />
-                </button>
-              </span>
-            )}
+            {activeChips.map((chip) => (
+              <FilterChip
+                key={chip.key}
+                label={chip.label}
+                onRemove={() => updateParams({ [chip.key]: "" })}
+              />
+            ))}
           </div>
 
           <Button

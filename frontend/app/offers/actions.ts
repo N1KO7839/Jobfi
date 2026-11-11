@@ -18,6 +18,20 @@ export async function fetchLocations(): Promise<string[]> {
   }
 }
 
+export async function fetchSourceCounts(): Promise<Record<string, number>> {
+  const baseUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+  const api = wretch(baseUrl);
+
+  try {
+    return await api
+      .url("/offers/sources")
+      .get()
+      .json<Record<string, number>>();
+  } catch {
+    return {};
+  }
+}
+
 export async function fetchOffers(
   page = 1,
   size = 8,

@@ -1,13 +1,25 @@
 "use client";
 
 import React from "react";
-import { Button } from "@heroui/button";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationControlsProps {
   totalPages: number;
   currentPage: number;
+}
+
+function getPageNumbers(current: number, total: number): (number | "gap")[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+
+  const pages = new Set([1, total, current - 1, current, current + 1]);
+  const sorted = [...pages]
+    .filter((p) => p >= 1 && p <= total)
+    .sort((a, b) => a - b);
+
+  return sorted.flatMap((page, i) =>
+    i > 0 && page - sorted[i - 1] > 1 ? ["gap" as const, page] : [page],
+  );
 }
 
 export const PaginationControls: React.FC<PaginationControlsProps> = ({
@@ -18,8 +30,8 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const handlePageChange = (page: number) => {
-    if (page < 1 || page > totalPages) return;
+  const goTo = (page: number) => {
+    if (page < 1 || page > totalPages || page === currentPage) return;
 
     const params = new URLSearchParams(searchParams.toString());
 
@@ -29,31 +41,55 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
 
   if (totalPages <= 1) return null;
 
+  const arrowClass =
+    "flex items-center justify-center w-9 h-9 rounded-lg border border-default-200 bg-content1 text-default-600 hover:bg-default-100 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer";
+
   return (
-    <div className="flex items-center justify-center gap-4 pt-6 pb-2 w-full">
-      <Button
-        className="border-default-200 text-default-600 bg-content1 rounded-xl px-4 h-9 font-medium hover:bg-default-100"
-        isDisabled={currentPage <= 1}
-        startContent={<ChevronLeft size={16} />}
-        variant="bordered"
-        onPress={() => handlePageChange(currentPage - 1)}
+    <nav
+      aria-label="Pagination"
+      className="flex items-center justify-center gap-1.5 pt-4"
+    >
+      <button
+        aria-label="Previous page"
+        className={arrowClass}
+        disabled={currentPage <= 1}
+        type="button"
+        onClick={() => goTo(currentPage - 1)}
       >
-        Previous
-      </Button>
+        <ChevronLeft size={16} />
+      </button>
 
-      <span className="text-xs sm:text-sm text-default-500 font-medium px-2">
-        Page {currentPage} of {totalPages}
-      </span>
+      {getPageNumbers(currentPage, totalPages).map((page, i) =>
+        page === "gap" ? (
+          <span key={`gap-${i}`} className="w-6 text-center text-default-400">
+            …
+          </span>
+        ) : (
+          <button
+            key={page}
+            aria-current={page === currentPage ? "page" : undefined}
+            className={`min-w-9 h-9 px-2 rounded-lg text-sm font-medium tabular-nums transition-colors cursor-pointer ${
+              page === currentPage
+                ? "bg-foreground text-background font-semibold"
+                : "text-default-600 hover:bg-default-100"
+            }`}
+            type="button"
+            onClick={() => goTo(page)}
+          >
+            {page}
+          </button>
+        ),
+      )}
 
-      <Button
-        className="border-default-200 text-default-600 bg-content1 rounded-xl px-4 h-9 font-medium hover:bg-default-100"
-        endContent={<ChevronRight size={16} />}
-        isDisabled={currentPage >= totalPages}
-        variant="bordered"
-        onPress={() => handlePageChange(currentPage + 1)}
+      <button
+        aria-label="Next page"
+        className={arrowClass}
+        disabled={currentPage >= totalPages}
+        type="button"
+        onClick={() => goTo(currentPage + 1)}
       >
-        Next
-      </Button>
-    </div>
+        <ChevronRight size={16} />
+      </button>
+    </nav>
   );
 };
